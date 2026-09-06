@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Tile Tycoon</title>
+    <style>
+      :root {
+        --tile-size: 72px;
+        --gap: 10px;
+        --accent: #ffd166;
+        --bg: #0f1724;
+        --panel: #0b1220;
+        --muted: #94a3b8;
+        --glass: rgba(255, 255, 255, 0.04);
+      }
+      body {
+        margin: 0;
+        font-family: sans-serif;
+        background: #0f1724;
+        color: #fff;
+      }
+      .center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+      .app {
+        width: 980px;
+        background: var(--panel);
+        padding: 20px;
+        border-radius: 10px;
+      }
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      header h1 {
+        color: var(--accent);
+      }
+      .page {
+        display: none;
+      }
+      .page.active {
+        display: block;
+      }
+      .btn {
+        padding: 10px 14px;
+        border: none;
+        border-radius: 8px;
+        background: var(--accent);
+        color: #001018;
+        font-weight: 700;
+        cursor: pointer;
+        margin: 4px;
+      }
+      .btn.secondary {
+        background: transparent;
+        border: 1px solid #ffd166;
+        color: #ffd166;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(5, var(--tile-size));
+        grid-template-rows: repeat(5, var(--tile-size));
+        gap: var(--gap);
+      }
+      .cell {
+        background: rgba(255, 255, 255, 0.02);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 8px;
+        cursor: pointer;
+        position: relative;
+      }
+      .tile {
+        width: 90%;
+        height: 90%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        font-weight: bold;
+        font-size: 16px;
+      }
+      .tile.l1 {
+        background: #ffd9b3;
+      }
+      .tile.l2 {
+        background: #fff3b0;
+      }
+      .tile.l3 {
+        background: #c8f7b2;
+      }
+      .tile.l4 {
+        background: #bfe6ff;
+      }
+      .tile.l5 {
+        background: #d8b4ff;
+      }
+      .tile.l6 {
+        background: #ffb4c6;
+      }
+      .tile.l7 {
+        background: #ffcf7a;
+      }
+      .tile.l8 {
+        background: #b8f2e6;
+      }
+      .tile.l9 {
+        background: #ffe6a7;
+      }
+      .tile.l10 {
+        background: #fbe8ff;
+      }
+      .tile.l11 {
+        background: #ffb8b8;
+      }
+      .tile.l12 {
+        background: #ffd1a7;
+      }
+      .tile.l13 {
+        background: #fff5b3;
+      }
+      .tile.l14 {
+        background: #c8f7b2;
+      }
+      .tile.l15 {
+        background: #bfe6ff;
+      }
+      .tile.l16 {
+        background: #d8b4ff;
+      }
+      .tile.l17 {
+        background: #ffb4c6;
+      }
+      .tile.l18 {
+        background: #ffcf7a;
+      }
+      .tile.l19 {
+        background: #b8f2e6;
+      }
+      .tile.l20 {
+        background: #000;
+        color: #fff;
+      }
+      .tile .lvl {
+        font-size: 12px;
+        color: rgba(0, 0, 0, 0.5);
+      }
+      .stat {
+        margin: 4px;
+        padding: 4px 8px;
+        background: var(--glass);
+        border-radius: 6px;
+      }
+      .controls {
+        margin: 10px 0;
+      }
+      .footer {
+        margin-top: 10px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="center">
+      <div class="app">
+        <header><h1>Tile Tycoon</h1></header>
+
+        <!-- MENU -->
+        <div id="menu" class="page active">
+          <p>Welcome! Merge tiles to earn more income.</p>
+          <button class="btn" id="playBtn">Play</button>
+          <button class="btn secondary" id="instructionsBtn">
+            Instructions
+          </button>
+          <button class="btn secondary" id="resetHighBtn">
+            Reset High Score
+          </button>
+        </div>
+
+        <!-- INSTRUCTIONS -->
+        <div id="instructions" class="page">
+          <h3>Instructions</h3>
+          <ol>
+            <li>Click a tile to select, then another tile.</li>
+            <li>Empty tile: move. Same level: merge. Different: swap.</li>
+            <li>Buy new tiles using score.</li>
+            <li>Reach level 20 for a surprise!</li>
+            <li>You can save your game and restore with a code.</li>
+          </ol>
+          <button class="btn" id="backFromInstr">Back</button>
+        </div>
+
+        <!-- GAME -->
+        <div id="game" class="page">
+          <div class="stat">Score: <span id="score">0</span></div>
+          <div class="stat">Income/sec: <span id="income">0</span></div>
+          <div class="stat">Tiles: <span id="tileCount">0</span>/25</div>
+          <div class="stat">High: <span id="highScore">0</span></div>
+          <div class="controls">
+            <button class="btn" id="buyBtn">Buy Tile (10)</button>
+            <button class="btn secondary" id="menuBackBtn">Menu</button>
+            <button class="btn" id="saveBtn">Save / Load Code</button>
+            <button class="btn" id="newGameBtn">New Game</button>
+          </div>
+          <div class="grid" id="grid"></div>
+        </div>
+        <div class="footer">Sigma's Tile Tycoon</div>
+      </div>
+    </div>
+
+    <script>
+      (() => {
+        const ROWS = 5,
+          COLS = 5,
+          MAX = 20;
+        let board = [],
+          score = 0,
+          selected = -1,
+          tileIncome = 0,
+          highScore = Number(localStorage.getItem("tt_high") || "0");
+
+        const grid = document.getElementById("grid");
+        const scoreEl = document.getElementById("score");
+        const incomeEl = document.getElementById("income");
+        const tileCountEl = document.getElementById("tileCount");
+        const highScoreEl = document.getElementById("highScore");
+
+        function initBoard() {
+          board = Array(ROWS * COLS).fill(null);
+          for (let i = 0; i < 3; i++) {
+            placeRandom(1);
+          }
+          updateUI();
+        }
+
+        function placeRandom(level) {
+          let empty = board
+            .map((v, i) => (v === null ? i : null))
+            .filter((v) => v !== null);
+          if (empty.length === 0) return false;
+          let idx = empty[Math.floor(Math.random() * empty.length)];
+          board[idx] = { level: level };
+          return true;
+        }
+
+        function updateUI() {
+          grid.innerHTML = "";
+          board.forEach((tile, i) => {
+            let cell = document.createElement("div");
+            cell.className = "cell";
+            cell.dataset.index = i;
+            if (tile) {
+              let t = document.createElement("div");
+              t.className = "tile l" + tile.level;
+              t.innerHTML = tile.level + '<div class="lvl">Lvl</div>';
+              cell.appendChild(t);
+            }
+            cell.addEventListener("click", () => onCellClick(i));
+            grid.appendChild(cell);
+          });
+          let tileCount = board.filter((v) => v !== null).length;
+          tileCountEl.innerText = tileCount;
+          scoreEl.innerText = score;
+          tileIncome = board.reduce(
+            (a, v) => (v ? a + Math.pow(2, v.level - 1) : a),
+            0
+          );
+          incomeEl.innerText = tileIncome;
+          highScoreEl.innerText = highScore;
+        }
+
+        function onCellClick(idx) {
+          if (selected === -1) {
+            selected = idx;
+            highlight();
+            return;
+          }
+          if (selected === idx) {
+            selected = -1;
+            highlight();
+            return;
+          }
+          let t1 = board[selected],
+            t2 = board[idx];
+          if (t1 && t2 && t1.level === t2.level) {
+            t2.level++;
+            if (t2.level === MAX) {
+              alert("Do you have a life?");
+            }
+            board[selected] = null;
+          } else {
+            board[selected] = t2;
+            board[idx] = t1;
+          }
+          selected = -1;
+          highlight();
+          updateUI();
+        }
+
+        function highlight() {
+          Array.from(grid.children).forEach((c, i) => {
+            c.style.outline = i === selected ? "3px solid yellow" : "none";
+          });
+        }
+
+        function buyTile() {
+          if (score >= 10) {
+            score -= 10;
+            placeRandom(1);
+            updateUI();
+          }
+        }
+
+        function menuBack() {
+          showPage("menu");
+        }
+
+        function showPage(id) {
+          document
+            .querySelectorAll(".page")
+            .forEach((p) => p.classList.remove("active"));
+          document.getElementById(id).classList.add("active");
+        }
+
+        function newGame() {
+          score = 0;
+          initBoard();
+        }
+
+        function saveLoad() {
+          let code = prompt(
+            "Enter save code to load, or leave empty to generate:"
+          );
+          if (code) {
+            try {
+              let data = JSON.parse(atob(code));
+              score = data.score;
+              board = data.board;
+              updateUI();
+              alert("Loaded!");
+            } catch (e) {
+              alert("Invalid code");
+            }
+          } else {
+            let data = { score, board };
+            let str = btoa(JSON.stringify(data));
+            prompt("Copy this code:", str);
+          }
+        }
+
+        function resetHigh() {
+          if (confirm("Reset high score?")) {
+            highScore = 0;
+            localStorage.setItem("tt_high", 0);
+            updateUI();
+          }
+        }
+
+        document.getElementById("playBtn").onclick = () => {
+          showPage("game");
+          newGame();
+        };
+        document.getElementById("instructionsBtn").onclick = () =>
+          showPage("instructions");
+        document.getElementById("backFromInstr").onclick = () =>
+          showPage("menu");
+        document.getElementById("menuBackBtn").onclick = menuBack;
+        document.getElementById("buyBtn").onclick = buyTile;
+        document.getElementById("newGameBtn").onclick = newGame;
+        document.getElementById("saveBtn").onclick = saveLoad;
+        document.getElementById("resetHighBtn").onclick = resetHigh;
+
+        initBoard();
+        setInterval(() => {
+          score += tileIncome;
+          updateUI();
+          if (score > highScore) {
+            highScore = score;
+            localStorage.setItem("tt_high", highScore);
+          }
+        }, 1000);
+      })();
+    </script>
+  </body>
+</html>

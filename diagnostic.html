@@ -1,0 +1,1735 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Diagnostic - Infinite Math</title>
+
+    <link rel="stylesheet" href="style.css" />
+
+    <style>
+      .diagnostic-container {
+        width: min(900px, 92%);
+        margin: 0 auto;
+        padding: 45px 0 70px;
+      }
+
+      .diagnostic-header {
+        text-align: center;
+        margin-bottom: 35px;
+      }
+
+      .diagnostic-header h1 {
+        margin-bottom: 10px;
+      }
+
+      .diagnostic-header p {
+        opacity: 0.75;
+        max-width: 650px;
+        margin: 0 auto;
+        line-height: 1.6;
+      }
+
+      .diagnostic-card {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 30px;
+      }
+
+      .diagnostic-step {
+        display: none;
+      }
+
+      .diagnostic-step.active {
+        display: block;
+      }
+
+      .diagnostic-title {
+        margin-top: 0;
+      }
+
+      .diagnostic-subtitle {
+        opacity: 0.7;
+        line-height: 1.6;
+      }
+
+      .diagnostic-grade-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 12px;
+        margin-top: 25px;
+      }
+
+      .diagnostic-grade-button {
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.04);
+        color: inherit;
+        border-radius: 10px;
+        padding: 16px;
+        cursor: pointer;
+        text-align: left;
+        transition: 0.15s ease;
+      }
+
+      .diagnostic-grade-button:hover {
+        background: rgba(255, 255, 255, 0.08);
+        transform: translateY(-1px);
+      }
+
+      .diagnostic-grade-button.selected {
+        border-color: #2f80ff;
+        background: rgba(47, 128, 255, 0.15);
+      }
+
+      .diagnostic-grade-name {
+        font-weight: 700;
+        display: block;
+      }
+
+      .diagnostic-grade-description {
+        display: block;
+        opacity: 0.65;
+        font-size: 13px;
+        margin-top: 5px;
+      }
+
+      .diagnostic-start,
+      .diagnostic-restart,
+      .diagnostic-next {
+        background: #2f80ff;
+        color: white;
+      }
+
+      .diagnostic-start {
+        width: 100%;
+        margin-top: 25px;
+        padding: 14px;
+        border: 0;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 15px;
+      }
+
+      .diagnostic-start:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+
+      .diagnostic-topbar {
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+
+      .diagnostic-progress-text {
+        opacity: 0.7;
+      }
+
+      .diagnostic-progress {
+        width: 100%;
+        height: 8px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.08);
+        overflow: hidden;
+        margin-bottom: 30px;
+      }
+
+      .diagnostic-progress-bar {
+        height: 100%;
+        width: 0%;
+        border-radius: inherit;
+        background: #2f80ff;
+        transition: width 0.25s ease;
+      }
+
+      .diagnostic-question-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 18px;
+      }
+
+      .diagnostic-tag {
+        display: inline-block;
+        padding: 6px 9px;
+        border-radius: 7px;
+        background: rgba(255, 255, 255, 0.07);
+        font-size: 12px;
+        opacity: 0.8;
+      }
+
+      .diagnostic-question {
+        font-size: 25px;
+        line-height: 1.4;
+        margin: 0 0 25px;
+      }
+
+      .diagnostic-choices {
+        display: grid;
+        gap: 10px;
+      }
+
+      .diagnostic-choice {
+        width: 100%;
+        text-align: left;
+        padding: 15px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.04);
+        color: inherit;
+        cursor: pointer;
+        font-size: 16px;
+        transition: 0.15s ease;
+      }
+
+      .diagnostic-choice:hover:not(:disabled) {
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .diagnostic-choice.correct {
+        border-color: #39d98a;
+        background: rgba(57, 217, 138, 0.15);
+      }
+
+      .diagnostic-choice.wrong {
+        border-color: #ff5c5c;
+        background: rgba(255, 92, 92, 0.15);
+      }
+
+      .diagnostic-feedback {
+        min-height: 25px;
+        margin-top: 20px;
+        font-weight: 700;
+      }
+
+      .diagnostic-feedback.correct {
+        color: #39d98a;
+      }
+
+      .diagnostic-feedback.wrong {
+        color: #ff5c5c;
+      }
+
+      .diagnostic-explanation {
+        margin-top: 10px;
+        opacity: 0.7;
+        line-height: 1.6;
+      }
+
+      .diagnostic-next {
+        display: none;
+        width: 100%;
+        margin-top: 20px;
+        padding: 14px;
+        border: 0;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 700;
+      }
+
+      .diagnostic-next.show {
+        display: block;
+      }
+
+      .diagnostic-loading {
+        text-align: center;
+        padding: 30px;
+        opacity: 0.7;
+      }
+
+      .diagnostic-result {
+        text-align: center;
+      }
+
+      .diagnostic-result h2 {
+        font-size: 32px;
+        margin-bottom: 8px;
+      }
+
+      .diagnostic-level {
+        font-size: 22px;
+        font-weight: 700;
+        margin: 25px 0 8px;
+      }
+
+      .diagnostic-unit {
+        opacity: 0.75;
+        margin-bottom: 30px;
+      }
+
+      .diagnostic-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin: 25px 0;
+      }
+
+      .diagnostic-stat {
+        padding: 18px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .diagnostic-stat-number {
+        display: block;
+        font-size: 25px;
+        font-weight: 700;
+      }
+
+      .diagnostic-stat-label {
+        display: block;
+        margin-top: 5px;
+        opacity: 0.65;
+        font-size: 13px;
+      }
+
+      .diagnostic-restart {
+        padding: 13px 22px;
+        border: 0;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 700;
+      }
+
+      .diagnostic-debug {
+        margin-top: 25px;
+        padding: 15px;
+        text-align: left;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.04);
+        font-family: monospace;
+        font-size: 12px;
+        opacity: 0.7;
+        white-space: pre-wrap;
+      }
+
+      @media (max-width: 600px) {
+        .diagnostic-card {
+          padding: 20px;
+        }
+
+        .diagnostic-stats {
+          grid-template-columns: 1fr;
+        }
+
+        .diagnostic-question {
+          font-size: 21px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+      <div class="navbar-left">
+        <button
+          id="sidebarToggle"
+          class="hamburger-button"
+          aria-label="Toggle menu"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <a href="home.html" class="logo">Infinite Math</a>
+      </div>
+
+      <div class="navbar-right">
+        <div class="account-menu">
+          <button id="accountButton" class="account-button">
+            <img
+              id="navProfilePicture"
+              class="nav-profile-picture"
+              src=""
+              alt="Profile"
+            />
+
+            <span id="navUsername">Account</span>
+
+            <span class="dropdown-arrow">▾</span>
+          </button>
+
+          <div id="accountDropdown" class="dropdown">
+            <div class="dropdown-user">
+              <img
+                id="dropdownProfilePicture"
+                class="dropdown-profile-picture"
+                src=""
+                alt="Profile"
+              />
+
+              <div>
+                <strong id="dropdownName">Account</strong>
+                <small id="dropdownEmail"></small>
+              </div>
+            </div>
+
+            <div class="dropdown-divider"></div>
+
+            <a href="account.html" class="dropdown-item"> Account Settings </a>
+
+            <div class="dropdown-divider"></div>
+
+            <button id="signOutButton" class="dropdown-item sign-out">
+              Sign Out
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- SIDEBAR OVERLAY -->
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <!-- SIDEBAR -->
+    <aside id="sidePanel" class="side-panel">
+      <div class="sidebar-section">
+        <div class="sidebar-group-buttons">
+          <a href="groups.html" class="sidebar-group-button"> Groups </a>
+
+          <button
+            id="groupsArrow"
+            class="sidebar-group-arrow"
+            aria-label="Toggle groups submenu"
+          >
+            ▾
+          </button>
+        </div>
+
+        <div id="groupsSubmenu" class="sidebar-submenu">
+          <a href="create-join-groups.html" class="sidebar-create-button">
+            Create / Join Group
+          </a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="diagnostic-container">
+      <header class="diagnostic-header">
+        <h1>Math Diagnostic</h1>
+
+        <p>
+          Choose the grade you think you're currently working at. The diagnostic
+          will move up or down based on your answers and estimate the grade and
+          unit that best matches your demonstrated math ability.
+        </p>
+      </header>
+
+      <section class="diagnostic-card">
+        <!-- START -->
+        <div id="startStep" class="diagnostic-step active">
+          <h2 class="diagnostic-title">What grade do you think you're at?</h2>
+
+          <p class="diagnostic-subtitle">
+            This is only your starting point. Your final result is determined
+            from your answers.
+          </p>
+
+          <div id="gradeGrid" class="diagnostic-grade-grid"></div>
+
+          <button
+            id="startButton"
+            class="diagnostic-start"
+            type="button"
+            disabled
+          >
+            Start Diagnostic
+          </button>
+        </div>
+
+        <!-- QUIZ -->
+        <div id="quizStep" class="diagnostic-step">
+          <div class="diagnostic-topbar">
+            <strong id="currentLevel"> Starting Diagnostic </strong>
+
+            <span id="progressText" class="diagnostic-progress-text">
+              Question 1
+            </span>
+          </div>
+
+          <div class="diagnostic-progress">
+            <div id="progressBar" class="diagnostic-progress-bar"></div>
+          </div>
+
+          <div id="questionArea">
+            <div class="diagnostic-loading">Loading question...</div>
+          </div>
+        </div>
+
+        <!-- RESULT -->
+        <div id="resultStep" class="diagnostic-step">
+          <div class="diagnostic-result">
+            <h2>Diagnostic Complete</h2>
+
+            <p>
+              Based on your answers, we estimate your current math level to be:
+            </p>
+
+            <div id="resultLevel" class="diagnostic-level"></div>
+
+            <div id="resultUnit" class="diagnostic-unit"></div>
+
+            <div class="diagnostic-stats">
+              <div class="diagnostic-stat">
+                <span id="totalQuestions" class="diagnostic-stat-number">
+                  0
+                </span>
+
+                <span class="diagnostic-stat-label"> Questions </span>
+              </div>
+
+              <div class="diagnostic-stat">
+                <span id="correctQuestions" class="diagnostic-stat-number">
+                  0
+                </span>
+
+                <span class="diagnostic-stat-label"> Correct </span>
+              </div>
+
+              <div class="diagnostic-stat">
+                <span id="accuracy" class="diagnostic-stat-number"> 0% </span>
+
+                <span class="diagnostic-stat-label"> Accuracy </span>
+              </div>
+            </div>
+
+            <p id="resultExplanation"></p>
+
+            <button id="restartButton" class="diagnostic-restart" type="button">
+              Take Diagnostic Again
+            </button>
+
+            <div id="debugOutput" class="diagnostic-debug"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- PROGRAMMATH -->
+    <script src="./ProgramMath.js"></script>
+
+    <!-- FIREBASE -->
+    <script type="module">
+      import {
+        auth,
+        db,
+        onAuthStateChanged,
+        signOut,
+        doc,
+        getDoc,
+        setDoc,
+        serverTimestamp,
+      } from "./firebase-config.js";
+
+      window.firebaseDiagnostic = {
+        auth,
+        db,
+        onAuthStateChanged,
+        signOut,
+        doc,
+        getDoc,
+        setDoc,
+        serverTimestamp,
+      };
+    </script>
+
+    <script>
+      (() => {
+        "use strict";
+
+        const $ = (id) => document.getElementById(id);
+
+        /* =========================================================
+         ELEMENTS
+      ========================================================= */
+
+        const startStep = $("startStep");
+        const quizStep = $("quizStep");
+        const resultStep = $("resultStep");
+
+        const gradeGrid = $("gradeGrid");
+        const startButton = $("startButton");
+
+        const currentLevel = $("currentLevel");
+        const progressText = $("progressText");
+        const progressBar = $("progressBar");
+        const questionArea = $("questionArea");
+
+        const resultLevel = $("resultLevel");
+        const resultUnit = $("resultUnit");
+        const totalQuestions = $("totalQuestions");
+        const correctQuestions = $("correctQuestions");
+        const accuracy = $("accuracy");
+        const resultExplanation = $("resultExplanation");
+        const restartButton = $("restartButton");
+        const debugOutput = $("debugOutput");
+
+        /* =========================================================
+         NAVIGATION
+      ========================================================= */
+
+        const sidebar = $("sidePanel");
+        const sidebarToggle = $("sidebarToggle");
+        const sidebarOverlay = $("sidebarOverlay");
+
+        const accountButton = $("accountButton");
+        const accountDropdown = $("accountDropdown");
+
+        const groupsArrow = $("groupsArrow");
+        const groupsSubmenu = $("groupsSubmenu");
+
+        sidebarToggle?.addEventListener("click", () => {
+          sidebar?.classList.toggle("open");
+          sidebarOverlay?.classList.toggle("show");
+        });
+
+        sidebarOverlay?.addEventListener("click", () => {
+          sidebar?.classList.remove("open");
+          sidebarOverlay?.classList.remove("show");
+        });
+
+        accountButton?.addEventListener("click", (event) => {
+          event.stopPropagation();
+
+          accountDropdown?.classList.toggle("show");
+          accountButton?.classList.toggle("open");
+        });
+
+        document.addEventListener("click", () => {
+          accountDropdown?.classList.remove("show");
+          accountButton?.classList.remove("open");
+        });
+
+        accountDropdown?.addEventListener("click", (event) => {
+          event.stopPropagation();
+        });
+
+        groupsArrow?.addEventListener("click", (event) => {
+          event.stopPropagation();
+
+          groupsSubmenu?.classList.toggle("show");
+          groupsArrow?.classList.toggle("open");
+        });
+
+        /* =========================================================
+         FIREBASE ACCOUNT
+      ========================================================= */
+
+        function setupFirebaseAccount() {
+          const firebase = window.firebaseDiagnostic;
+
+          if (!firebase) {
+            console.error("Firebase has not loaded yet.");
+            return;
+          }
+
+          firebase.onAuthStateChanged(firebase.auth, async (user) => {
+            if (!user) {
+              console.warn("No signed-in Firebase user.");
+              return;
+            }
+
+            try {
+              const userRef = firebase.doc(firebase.db, "users", user.uid);
+              const snapshot = await firebase.getDoc(userRef);
+
+              const data = snapshot.exists() ? snapshot.data() : {};
+
+              const displayName =
+                data.displayName ||
+                user.displayName ||
+                user.email?.split("@")[0] ||
+                "Account";
+
+              const email = data.email || user.email || "";
+
+              const photoURL = data.photoURL || user.photoURL || "";
+
+              $("navUsername").textContent = displayName;
+
+              $("dropdownName").textContent = displayName;
+
+              $("dropdownEmail").textContent = email;
+
+              if (photoURL) {
+                $("navProfilePicture").src = photoURL;
+                $("dropdownProfilePicture").src = photoURL;
+              }
+            } catch (error) {
+              console.error("Could not load Firebase account:", error);
+            }
+          });
+
+          $("signOutButton")?.addEventListener("click", async () => {
+            try {
+              await firebase.signOut(firebase.auth);
+
+              window.location.href = "home.html";
+            } catch (error) {
+              console.error("Sign out failed:", error);
+            }
+          });
+        }
+
+        /*
+          Wait for the Firebase module to finish loading.
+        */
+
+        if (window.firebaseDiagnostic) {
+          setupFirebaseAccount();
+        } else {
+          window.addEventListener("load", setupFirebaseAccount);
+        }
+
+        /* =========================================================
+         GRADE ORDER
+      ========================================================= */
+
+        const GRADE_ORDER = [
+          "K",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+        ];
+
+        function gradeIndex(grade) {
+          const index = GRADE_ORDER.indexOf(String(grade));
+
+          return index === -1 ? 0 : index;
+        }
+
+        function gradeLabel(grade) {
+          grade = String(grade);
+
+          if (grade === "K") {
+            return "Kindergarten";
+          }
+
+          const n = Number(grade);
+
+          if (n === 1) return "1st Grade";
+          if (n === 2) return "2nd Grade";
+          if (n === 3) return "3rd Grade";
+
+          return `${n}th Grade`;
+        }
+
+        function courseName(grade) {
+          switch (String(grade)) {
+            case "8":
+              return "Pre-Algebra";
+
+            case "9":
+              return "Algebra 1";
+
+            case "10":
+              return "Geometry";
+
+            case "11":
+              return "Algebra 2";
+
+            case "12":
+              return "Precalculus / Intro Calculus";
+
+            default:
+              return null;
+          }
+        }
+
+        function fullGradeLabel(grade) {
+          const basic = gradeLabel(grade);
+          const course = courseName(grade);
+
+          return course ? `${basic} — ${course}` : basic;
+        }
+
+        /* =========================================================
+         STATE
+      ========================================================= */
+
+        let selectedStartingGrade = null;
+
+        let currentGrade = null;
+        let currentUnit = null;
+
+        let currentQuestion = null;
+
+        let questionNumber = 0;
+        let correctCount = 0;
+
+        let consecutiveCorrect = 0;
+        let consecutiveWrong = 0;
+
+        let answerHistory = [];
+
+        const MIN_QUESTIONS = 20;
+        const MAX_QUESTIONS = 50;
+
+        /* =========================================================
+         HTML ESCAPING
+      ========================================================= */
+
+        function escapeHTML(value) {
+          return String(value ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+        }
+
+        /* =========================================================
+         PROGRAMMATH
+      ========================================================= */
+
+        function getUnitsForGrade(grade) {
+          try {
+            return ProgramMath.getUnits(String(grade)) || [];
+          } catch (error) {
+            console.error("ProgramMath.getUnits failed:", error);
+
+            return [];
+          }
+        }
+
+        function getUnitTitle(grade, unit) {
+          const units = getUnitsForGrade(grade);
+
+          const found = units.find((item) => Number(item.id) === Number(unit));
+
+          return found?.title || `Unit ${unit}`;
+        }
+
+        /* =========================================================
+         GRADE BUTTONS
+      ========================================================= */
+
+        function renderGradeButtons() {
+          gradeGrid.innerHTML = "";
+
+          if (!window.ProgramMath) {
+            gradeGrid.innerHTML = `
+            <p>
+              ProgramMath.js could not be loaded.
+            </p>
+          `;
+
+            return;
+          }
+
+          let grades;
+
+          try {
+            grades = ProgramMath.listGrades();
+          } catch (error) {
+            console.error(error);
+
+            gradeGrid.innerHTML = `
+            <p>
+              Could not load grades from ProgramMath.js.
+            </p>
+          `;
+
+            return;
+          }
+
+          grades.forEach((grade) => {
+            const button = document.createElement("button");
+
+            button.type = "button";
+            button.className = "diagnostic-grade-button";
+
+            const id = String(grade.id);
+
+            button.innerHTML = `
+            <span class="diagnostic-grade-name">
+              ${escapeHTML(grade.label)}
+            </span>
+
+            <span class="diagnostic-grade-description">
+              ${escapeHTML(courseName(id) || "Elementary / Middle School Math")}
+            </span>
+          `;
+
+            button.addEventListener("click", () => {
+              selectedStartingGrade = id;
+
+              document
+                .querySelectorAll(".diagnostic-grade-button")
+                .forEach((item) => {
+                  item.classList.remove("selected");
+                });
+
+              button.classList.add("selected");
+
+              startButton.disabled = false;
+            });
+
+            gradeGrid.appendChild(button);
+          });
+        }
+
+        /* =========================================================
+         STARTING UNIT
+      ========================================================= */
+
+        function startingUnitForGrade(grade) {
+          const units = getUnitsForGrade(grade);
+
+          if (!units.length) {
+            return 1;
+          }
+
+          return Number(
+            units[Math.floor(units.length / 2)]?.id || units[0].id || 1
+          );
+        }
+
+        /* =========================================================
+         MOVE UNIT
+      ========================================================= */
+
+        function moveUnit(direction) {
+          const units = getUnitsForGrade(currentGrade);
+
+          if (!units.length) {
+            return;
+          }
+
+          const currentIndex = units.findIndex(
+            (unit) => Number(unit.id) === Number(currentUnit)
+          );
+
+          if (currentIndex === -1) {
+            currentUnit = Number(units[0].id);
+            return;
+          }
+
+          const nextIndex = currentIndex + direction;
+
+          if (nextIndex >= 0 && nextIndex < units.length) {
+            currentUnit = Number(units[nextIndex].id);
+
+            return;
+          }
+
+          moveGrade(direction);
+        }
+
+        /* =========================================================
+         MOVE GRADE
+      ========================================================= */
+
+        function moveGrade(direction) {
+          const oldIndex = gradeIndex(currentGrade);
+
+          let newIndex = oldIndex + direction;
+
+          newIndex = Math.max(0, Math.min(GRADE_ORDER.length - 1, newIndex));
+
+          if (newIndex === oldIndex) {
+            return;
+          }
+
+          currentGrade = GRADE_ORDER[newIndex];
+
+          const units = getUnitsForGrade(currentGrade);
+
+          if (!units.length) {
+            currentUnit = 1;
+            return;
+          }
+
+          if (direction > 0) {
+            currentUnit = Number(units[0].id);
+          } else {
+            currentUnit = Number(units[units.length - 1].id);
+          }
+
+          console.log(`LEVEL CHANGE → ${fullGradeLabel(currentGrade)}`);
+        }
+
+        /* =========================================================
+         RECORD ANSWER
+      ========================================================= */
+
+        function recordAnswer(correct) {
+          const record = {
+            grade: String(currentGrade),
+            unit: Number(currentUnit),
+            correct: Boolean(correct),
+          };
+
+          answerHistory.push(record);
+
+          console.log("RECORDED ANSWER:", record);
+        }
+
+        /* =========================================================
+         PROCESS CORRECT
+      ========================================================= */
+
+        function processCorrect() {
+          correctCount++;
+
+          consecutiveCorrect++;
+          consecutiveWrong = 0;
+
+          recordAnswer(true);
+
+          if (consecutiveCorrect >= 4) {
+            moveGrade(1);
+
+            consecutiveCorrect = 0;
+
+            return;
+          }
+
+          if (consecutiveCorrect >= 2) {
+            moveUnit(1);
+
+            consecutiveCorrect = 0;
+
+            return;
+          }
+        }
+
+        /* =========================================================
+         PROCESS WRONG
+      ========================================================= */
+
+        function processWrong() {
+          consecutiveWrong++;
+          consecutiveCorrect = 0;
+
+          recordAnswer(false);
+
+          if (consecutiveWrong >= 2) {
+            moveGrade(-1);
+
+            consecutiveWrong = 0;
+
+            return;
+          }
+
+          moveUnit(-1);
+        }
+
+        /* =========================================================
+         GENERATE QUESTION
+      ========================================================= */
+
+        function generateQuestion() {
+          try {
+            const requestedGrade = String(currentGrade);
+            const requestedUnit = Number(currentUnit);
+
+            console.log(
+              `GENERATING → Grade ${requestedGrade}, Unit ${requestedUnit}`
+            );
+
+            const generated = ProgramMath.randomQuestion(
+              requestedGrade,
+              requestedUnit
+            );
+
+            currentQuestion = {
+              ...generated,
+
+              grade: requestedGrade,
+              unit: requestedUnit,
+
+              unitTitle:
+                generated.unitTitle ||
+                getUnitTitle(requestedGrade, requestedUnit),
+            };
+
+            renderQuestion();
+            updateLevelDisplay();
+            updateProgress();
+          } catch (error) {
+            console.error("QUESTION GENERATION ERROR:", error);
+
+            questionArea.innerHTML = `
+            <div class="diagnostic-loading">
+              Could not generate a question for
+              ${escapeHTML(fullGradeLabel(currentGrade))}
+              Unit ${escapeHTML(currentUnit)}.
+              <br><br>
+              Check the browser console for details.
+            </div>
+          `;
+          }
+        }
+
+        /* =========================================================
+         LEVEL DISPLAY
+      ========================================================= */
+
+        function updateLevelDisplay() {
+          currentLevel.textContent =
+            `${fullGradeLabel(currentGrade)} • ` +
+            `Unit ${currentUnit}: ` +
+            `${getUnitTitle(currentGrade, currentUnit)}`;
+        }
+
+        /* =========================================================
+         RENDER QUESTION
+      ========================================================= */
+
+        function renderQuestion() {
+          const q = currentQuestion;
+
+          if (!q || !Array.isArray(q.choices)) {
+            throw new Error("ProgramMath returned an invalid question.");
+          }
+
+          questionArea.innerHTML = `
+          <div class="diagnostic-question-tags">
+
+            <span class="diagnostic-tag">
+              ${escapeHTML(fullGradeLabel(q.grade))}
+            </span>
+
+            <span class="diagnostic-tag">
+              Unit ${escapeHTML(q.unit)}
+            </span>
+
+            <span class="diagnostic-tag">
+              ${escapeHTML(q.unitTitle)}
+            </span>
+
+          </div>
+
+          <h2 class="diagnostic-question">
+            ${escapeHTML(q.prompt)}
+          </h2>
+
+          <div
+            id="diagnosticChoices"
+            class="diagnostic-choices"
+          >
+            ${q.choices
+              .map(
+                (choice, index) => `
+                  <button
+                    type="button"
+                    class="diagnostic-choice"
+                    data-index="${index}"
+                  >
+                    ${escapeHTML(choice)}
+                  </button>
+                `
+              )
+              .join("")}
+          </div>
+
+          <div
+            id="diagnosticFeedback"
+            class="diagnostic-feedback"
+          ></div>
+
+          <div
+            id="diagnosticExplanation"
+            class="diagnostic-explanation"
+          ></div>
+
+          <button
+            id="nextQuestionButton"
+            type="button"
+            class="diagnostic-next"
+          >
+            Next Question
+          </button>
+        `;
+
+          document.querySelectorAll(".diagnostic-choice").forEach((button) => {
+            button.addEventListener("click", () => {
+              answerQuestion(Number(button.dataset.index));
+            });
+          });
+
+          $("nextQuestionButton").addEventListener("click", nextQuestion);
+        }
+
+        /* =========================================================
+         ANSWER
+      ========================================================= */
+
+        function answerQuestion(index) {
+          if (!currentQuestion) {
+            return;
+          }
+
+          const buttons = [...document.querySelectorAll(".diagnostic-choice")];
+
+          if (buttons.some((button) => button.disabled)) {
+            return;
+          }
+
+          const selected = currentQuestion.choices[index];
+
+          const correct = selected === currentQuestion.answer;
+
+          buttons.forEach((button) => {
+            button.disabled = true;
+
+            const buttonIndex = Number(button.dataset.index);
+
+            if (
+              currentQuestion.choices[buttonIndex] === currentQuestion.answer
+            ) {
+              button.classList.add("correct");
+            }
+          });
+
+          if (!correct) {
+            const selectedButton = document.querySelector(
+              `.diagnostic-choice[data-index="${index}"]`
+            );
+
+            selectedButton?.classList.add("wrong");
+          }
+
+          const feedback = $("diagnosticFeedback");
+
+          const explanation = $("diagnosticExplanation");
+
+          if (correct) {
+            feedback.className = "diagnostic-feedback correct";
+
+            feedback.textContent = "Correct!";
+
+            processCorrect();
+          } else {
+            feedback.className = "diagnostic-feedback wrong";
+
+            feedback.textContent = `Incorrect. The correct answer is ${currentQuestion.answer}.`;
+
+            processWrong();
+          }
+
+          explanation.textContent = currentQuestion.explanation || "";
+
+          updateProgress();
+
+          $("nextQuestionButton").classList.add("show");
+        }
+
+        /* =========================================================
+         NEXT QUESTION
+      ========================================================= */
+
+        function nextQuestion() {
+          questionNumber++;
+
+          if (questionNumber >= MIN_QUESTIONS && shouldFinish()) {
+            finishDiagnostic();
+            return;
+          }
+
+          if (questionNumber >= MAX_QUESTIONS) {
+            finishDiagnostic();
+            return;
+          }
+
+          generateQuestion();
+        }
+
+        /* =========================================================
+         SHOULD FINISH
+      ========================================================= */
+
+        function shouldFinish() {
+          if (questionNumber < MIN_QUESTIONS) {
+            return false;
+          }
+
+          if (questionNumber >= MAX_QUESTIONS) {
+            return true;
+          }
+
+          const stats = getGradeStatistics();
+
+          const testedGrades = Object.values(stats).filter(
+            (item) => item.total >= 4
+          );
+
+          if (testedGrades.length < 2) {
+            return false;
+          }
+
+          for (let i = 0; i < GRADE_ORDER.length - 1; i++) {
+            const lower = stats[GRADE_ORDER[i]];
+
+            const higher = stats[GRADE_ORDER[i + 1]];
+
+            if (
+              lower &&
+              higher &&
+              lower.total >= 4 &&
+              higher.total >= 4 &&
+              lower.accuracy >= 0.7 &&
+              higher.accuracy <= 0.35
+            ) {
+              return true;
+            }
+          }
+
+          const strong = testedGrades.some(
+            (item) =>
+              item.total >= 5 && (item.accuracy >= 0.85 || item.accuracy <= 0.2)
+          );
+
+          if (strong && questionNumber >= 30) {
+            return true;
+          }
+
+          if (questionNumber >= 40 && testedGrades.length >= 2) {
+            return true;
+          }
+
+          return false;
+        }
+
+        /* =========================================================
+         GRADE STATISTICS
+      ========================================================= */
+
+        function getGradeStatistics() {
+          const stats = {};
+
+          answerHistory.forEach((answer) => {
+            const grade = String(answer.grade);
+
+            if (!stats[grade]) {
+              stats[grade] = {
+                grade,
+                total: 0,
+                correct: 0,
+                wrong: 0,
+                units: {},
+              };
+            }
+
+            stats[grade].total++;
+
+            if (answer.correct) {
+              stats[grade].correct++;
+            } else {
+              stats[grade].wrong++;
+            }
+
+            const unit = String(answer.unit);
+
+            if (!stats[grade].units[unit]) {
+              stats[grade].units[unit] = {
+                total: 0,
+                correct: 0,
+                wrong: 0,
+              };
+            }
+
+            stats[grade].units[unit].total++;
+
+            if (answer.correct) {
+              stats[grade].units[unit].correct++;
+            } else {
+              stats[grade].units[unit].wrong++;
+            }
+          });
+
+          Object.values(stats).forEach((item) => {
+            item.accuracy = item.total > 0 ? item.correct / item.total : 0;
+          });
+
+          return stats;
+        }
+
+        /* =========================================================
+         DETERMINE FINAL GRADE
+      ========================================================= */
+
+        function determineFinalGrade() {
+          const stats = getGradeStatistics();
+
+          const tested = Object.values(stats)
+            .filter((item) => item.total > 0)
+            .sort((a, b) => gradeIndex(a.grade) - gradeIndex(b.grade));
+
+          if (!tested.length) {
+            return "K";
+          }
+
+          const total = tested.reduce((sum, item) => sum + item.total, 0);
+
+          const correct = tested.reduce((sum, item) => sum + item.correct, 0);
+
+          const overallAccuracy = total > 0 ? correct / total : 0;
+
+          if (overallAccuracy <= 0.35) {
+            return tested[0].grade;
+          }
+
+          const mastered = tested
+            .filter((item) => item.total >= 4 && item.accuracy >= 0.7)
+            .sort((a, b) => gradeIndex(b.grade) - gradeIndex(a.grade));
+
+          if (mastered.length) {
+            return mastered[0].grade;
+          }
+
+          const partial = tested
+            .filter((item) => item.total >= 4 && item.accuracy >= 0.5)
+            .sort((a, b) => gradeIndex(b.grade) - gradeIndex(a.grade));
+
+          if (partial.length) {
+            return partial[0].grade;
+          }
+
+          tested.sort((a, b) => {
+            if (b.accuracy !== a.accuracy) {
+              return b.accuracy - a.accuracy;
+            }
+
+            return gradeIndex(b.grade) - gradeIndex(a.grade);
+          });
+
+          return tested[0].grade;
+        }
+
+        /* =========================================================
+         DETERMINE FINAL UNIT
+      ========================================================= */
+
+        function determineFinalUnit(finalGrade) {
+          const stats = getGradeStatistics();
+
+          const gradeStats = stats[String(finalGrade)];
+
+          if (!gradeStats || !gradeStats.units) {
+            return 1;
+          }
+
+          const units = Object.entries(gradeStats.units)
+            .map(([unit, data]) => ({
+              unit: Number(unit),
+              total: data.total,
+              correct: data.correct,
+              accuracy: data.total > 0 ? data.correct / data.total : 0,
+            }))
+            .sort((a, b) => a.unit - b.unit);
+
+          if (!units.length) {
+            return 1;
+          }
+
+          const passed = units.filter(
+            (unit) => unit.total >= 2 && unit.accuracy >= 0.6
+          );
+
+          if (passed.length) {
+            return passed[passed.length - 1].unit;
+          }
+
+          return units[0].unit;
+        }
+
+        /* =========================================================
+         SAVE DIAGNOSTIC RESULT TO FIREBASE
+      ========================================================= */
+
+        async function saveDiagnosticResult(finalGrade, finalUnit) {
+          const firebase = window.firebaseDiagnostic;
+
+          if (!firebase) {
+            throw new Error("Firebase has not loaded.");
+          }
+
+          const user = firebase.auth.currentUser;
+
+          if (!user) {
+            throw new Error(
+              "You must be signed in to save your diagnostic result."
+            );
+          }
+
+          /*
+            Firebase format:
+
+            K.1
+            1.5
+            9.4
+            12.12
+          */
+
+          const gradeLevel = `${finalGrade}.${finalUnit}`;
+
+          await firebase.setDoc(
+            firebase.doc(firebase.db, "users", user.uid),
+            {
+              gradeLevel,
+              updatedAt: firebase.serverTimestamp(),
+            },
+            {
+              merge: true,
+            }
+          );
+
+          console.log("Diagnostic grade/unit saved to Firebase:", gradeLevel);
+
+          return gradeLevel;
+        }
+
+        /* =========================================================
+         FINISH
+      ========================================================= */
+
+        async function finishDiagnostic() {
+          const finalGrade = determineFinalGrade();
+
+          const finalUnit = determineFinalUnit(finalGrade);
+
+          const stats = getGradeStatistics();
+
+          const total = answerHistory.length;
+
+          const correct = answerHistory.filter((item) => item.correct).length;
+
+          const percent = total > 0 ? Math.round((correct / total) * 100) : 0;
+
+          const unitTitle = getUnitTitle(finalGrade, finalUnit);
+
+          /*
+          ========================================================
+          SAVE FINAL GRADE + UNIT TO FIREBASE
+          ========================================================
+          */
+
+          let saveMessage = "Saving your math level...";
+
+          try {
+            const savedGradeLevel = await saveDiagnosticResult(
+              finalGrade,
+              finalUnit
+            );
+
+            saveMessage = `Saved to your account: ${savedGradeLevel}`;
+          } catch (error) {
+            console.error("Could not save diagnostic result:", error);
+
+            saveMessage = `Could not save to your account: ${error.message}`;
+          }
+
+          /*
+          Display result.
+          */
+
+          resultLevel.textContent = fullGradeLabel(finalGrade);
+
+          resultUnit.textContent = `Unit ${finalUnit}: ${unitTitle}`;
+
+          totalQuestions.textContent = total;
+
+          correctQuestions.textContent = correct;
+
+          accuracy.textContent = `${percent}%`;
+
+          /*
+          Explanation.
+          */
+
+          if (percent <= 35) {
+            resultExplanation.textContent =
+              "Your performance showed that the higher-level material was too difficult, so the diagnostic moved downward and based the result on the lowest level you actually demonstrated.";
+          } else if (percent >= 80) {
+            resultExplanation.textContent =
+              "You demonstrated strong understanding across the material tested, allowing the diagnostic to move upward before determining your estimated level.";
+          } else if (percent >= 50) {
+            resultExplanation.textContent =
+              "Your results showed a mixture of strengths and weaknesses. The diagnostic used your performance at multiple levels to estimate your current grade and unit.";
+          } else {
+            resultExplanation.textContent =
+              "The diagnostic adjusted the difficulty based on your answers and used your demonstrated performance to estimate your current level.";
+          }
+
+          /*
+          Show useful debugging information.
+          */
+
+          const debugLines = [
+            `Starting grade: ${selectedStartingGrade}`,
+            `Final grade: ${finalGrade}`,
+            `Final unit: ${finalUnit}`,
+            `Firebase gradeLevel: ${finalGrade}.${finalUnit}`,
+            `Firebase save: ${saveMessage}`,
+            "",
+            "ANSWER HISTORY:",
+            ...answerHistory.map(
+              (answer, index) =>
+                `${index + 1}. Grade ${answer.grade}, Unit ${answer.unit} → ${
+                  answer.correct ? "CORRECT" : "WRONG"
+                }`
+            ),
+            "",
+            "GRADE STATISTICS:",
+            ...Object.values(stats)
+              .sort((a, b) => gradeIndex(a.grade) - gradeIndex(b.grade))
+              .map(
+                (item) =>
+                  `Grade ${item.grade}: ${item.correct}/${
+                    item.total
+                  } (${Math.round(item.accuracy * 100)}%)`
+              ),
+          ];
+
+          debugOutput.textContent = debugLines.join("\n");
+
+          console.log("========== FINAL DIAGNOSTIC ==========");
+
+          console.log("Starting grade:", selectedStartingGrade);
+
+          console.log("Final grade:", finalGrade);
+
+          console.log("Final unit:", finalUnit);
+
+          console.log("Firebase gradeLevel:", `${finalGrade}.${finalUnit}`);
+
+          console.log("Answer history:", answerHistory);
+
+          console.log("Grade statistics:", stats);
+
+          console.log("=======================================");
+
+          quizStep.classList.remove("active");
+
+          resultStep.classList.add("active");
+        }
+
+        /* =========================================================
+         PROGRESS
+      ========================================================= */
+
+        function updateProgress() {
+          const nextQuestion = Math.min(questionNumber + 1, MAX_QUESTIONS);
+
+          if (questionNumber < MIN_QUESTIONS) {
+            progressText.textContent =
+              `Question ${nextQuestion} of up to ${MAX_QUESTIONS} • ` +
+              `At least ${MIN_QUESTIONS - questionNumber} more`;
+          } else {
+            progressText.textContent = `Question ${nextQuestion} of up to ${MAX_QUESTIONS}`;
+          }
+
+          const percent = Math.min(100, (questionNumber / MAX_QUESTIONS) * 100);
+
+          progressBar.style.width = `${percent}%`;
+        }
+
+        /* =========================================================
+         START
+      ========================================================= */
+
+        startButton.addEventListener("click", () => {
+          if (selectedStartingGrade === null) {
+            return;
+          }
+
+          currentGrade = selectedStartingGrade;
+
+          currentUnit = startingUnitForGrade(currentGrade);
+
+          currentQuestion = null;
+
+          questionNumber = 0;
+          correctCount = 0;
+
+          consecutiveCorrect = 0;
+          consecutiveWrong = 0;
+
+          answerHistory = [];
+
+          startStep.classList.remove("active");
+
+          quizStep.classList.add("active");
+
+          updateLevelDisplay();
+          updateProgress();
+
+          generateQuestion();
+        });
+
+        /* =========================================================
+         RESTART
+      ========================================================= */
+
+        restartButton.addEventListener("click", () => {
+          resultStep.classList.remove("active");
+
+          startStep.classList.add("active");
+
+          selectedStartingGrade = null;
+
+          currentGrade = null;
+          currentUnit = null;
+          currentQuestion = null;
+
+          questionNumber = 0;
+          correctCount = 0;
+
+          consecutiveCorrect = 0;
+          consecutiveWrong = 0;
+
+          answerHistory = [];
+
+          startButton.disabled = true;
+
+          document
+            .querySelectorAll(".diagnostic-grade-button")
+            .forEach((button) => {
+              button.classList.remove("selected");
+            });
+
+          debugOutput.textContent = "";
+        });
+
+        /* =========================================================
+         INITIALIZE
+      ========================================================= */
+
+        if (!window.ProgramMath) {
+          gradeGrid.innerHTML = `
+          <p>
+            ProgramMath.js could not be loaded.
+            Make sure ProgramMath.js is in the same folder
+            as diagnostic.html.
+          </p>
+        `;
+
+          startButton.disabled = true;
+
+          return;
+        }
+
+        renderGradeButtons();
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>ProgramMath - Infinite Math</title>
+
+    <!-- Use Infinite Math's main stylesheet -->
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <main class="programmath-page">
+      <div class="programmath-container">
+        <header class="programmath-hero">
+          <div class="programmath-label">PROGRAMMATH</div>
+
+          <h1>Practice <span>Math.</span></h1>
+
+          <p>
+            Choose a grade and unit. ProgramMath will generate a question
+            specifically for that part of the Infinite Math curriculum.
+          </p>
+        </header>
+
+        <section class="programmath-card">
+          <div class="programmath-controls">
+            <!-- GRADE -->
+            <div class="programmath-field">
+              <label for="gradeButton">GRADE</label>
+
+              <div class="programmath-select" id="gradeSelect">
+                <button
+                  class="programmath-select-button"
+                  id="gradeButton"
+                  type="button"
+                  aria-expanded="false"
+                >
+                  <span id="gradeText">Loading grades...</span>
+                  <span class="programmath-select-arrow">▼</span>
+                </button>
+
+                <div class="programmath-select-menu" id="gradeMenu"></div>
+              </div>
+            </div>
+
+            <!-- UNIT -->
+            <div class="programmath-field">
+              <label for="unitButton">UNIT</label>
+
+              <div class="programmath-select" id="unitSelect">
+                <button
+                  class="programmath-select-button"
+                  id="unitButton"
+                  type="button"
+                  aria-expanded="false"
+                >
+                  <span id="unitText">Loading units...</span>
+                  <span class="programmath-select-arrow">▼</span>
+                </button>
+
+                <div class="programmath-select-menu" id="unitMenu"></div>
+              </div>
+            </div>
+          </div>
+
+          <button
+            class="programmath-generate"
+            id="generateButton"
+            type="button"
+          >
+            GENERATE QUESTION
+          </button>
+
+          <div class="programmath-status" id="status"></div>
+
+          <div id="questionArea"></div>
+        </section>
+      </div>
+    </main>
+
+    <script src="ProgramMath.js"></script>
+
+    <script>
+      (() => {
+        "use strict";
+
+        const $ = (id) => document.getElementById(id);
+
+        const gradeSelect = $("gradeSelect");
+        const unitSelect = $("unitSelect");
+
+        const gradeButton = $("gradeButton");
+        const unitButton = $("unitButton");
+
+        const gradeMenu = $("gradeMenu");
+        const unitMenu = $("unitMenu");
+
+        const gradeText = $("gradeText");
+        const unitText = $("unitText");
+
+        const generateButton = $("generateButton");
+
+        const questionArea = $("questionArea");
+        const status = $("status");
+
+        let grade = "8";
+        let unit = 1;
+
+        let currentQuestion = null;
+
+        function escapeHTML(value) {
+          return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+        }
+
+        /* =========================================
+           DROPDOWNS
+        ========================================= */
+
+        function closeMenus() {
+          document
+            .querySelectorAll(".programmath-select.is-open")
+            .forEach((select) => {
+              select.classList.remove("is-open");
+
+              const button = select.querySelector(".programmath-select-button");
+
+              if (button) {
+                button.setAttribute("aria-expanded", "false");
+              }
+            });
+        }
+
+        function toggleMenu(select, button) {
+          const currentlyOpen = select.classList.contains("is-open");
+
+          closeMenus();
+
+          if (!currentlyOpen) {
+            select.classList.add("is-open");
+            button.setAttribute("aria-expanded", "true");
+          }
+        }
+
+        /* =========================================
+           GRADE DROPDOWN
+        ========================================= */
+
+        function renderGrades() {
+          gradeMenu.innerHTML = "";
+
+          const grades = ProgramMath.listGrades();
+
+          grades.forEach((g) => {
+            const option = document.createElement("button");
+
+            option.type = "button";
+            option.className =
+              "programmath-option" +
+              (String(g.id) === String(grade) ? " selected" : "");
+
+            option.innerHTML = `
+              <span>${escapeHTML(g.label)}</span>
+              <small>${g.course}</small>
+            `;
+
+            option.addEventListener("click", (event) => {
+              event.stopPropagation();
+
+              grade = String(g.id);
+
+              gradeText.textContent = g.label;
+
+              closeMenus();
+
+              renderGrades();
+              renderUnits();
+
+              questionArea.innerHTML = "";
+
+              status.textContent = `${g.label} selected. Choose a unit or generate a question.`;
+            });
+
+            gradeMenu.appendChild(option);
+          });
+
+          const selectedGrade = grades.find(
+            (g) => String(g.id) === String(grade)
+          );
+
+          if (selectedGrade) {
+            gradeText.textContent = selectedGrade.label;
+          }
+        }
+
+        /* =========================================
+           UNIT DROPDOWN
+        ========================================= */
+
+        function renderUnits() {
+          unitMenu.innerHTML = "";
+
+          const units = ProgramMath.getUnits(grade);
+
+          if (!units.length) {
+            unit = null;
+
+            unitText.textContent = "No units available";
+
+            return;
+          }
+
+          if (!units.some((u) => Number(u.id) === Number(unit))) {
+            unit = Number(units[0].id);
+          }
+
+          const selected = units.find((u) => Number(u.id) === Number(unit));
+
+          unitText.textContent = `Unit ${selected.id}: ${selected.title}`;
+
+          units.forEach((u) => {
+            const option = document.createElement("button");
+
+            option.type = "button";
+
+            option.className =
+              "programmath-option" +
+              (Number(u.id) === Number(unit) ? " selected" : "");
+
+            option.innerHTML = `
+              <span>Unit ${u.id}: ${escapeHTML(u.title)}</span>
+              <small>${escapeHTML(u.description)}</small>
+            `;
+
+            option.addEventListener("click", (event) => {
+              event.stopPropagation();
+
+              unit = Number(u.id);
+
+              unitText.textContent = `Unit ${u.id}: ${u.title}`;
+
+              closeMenus();
+
+              renderUnits();
+
+              questionArea.innerHTML = "";
+
+              status.textContent = `${u.questionCount} generated question type${
+                u.questionCount === 1 ? "" : "s"
+              } available for this unit.`;
+            });
+
+            unitMenu.appendChild(option);
+          });
+        }
+
+        /* =========================================
+           GENERATE
+        ========================================= */
+
+        function generate() {
+          try {
+            currentQuestion = ProgramMath.randomQuestion(grade, unit);
+
+            renderQuestion();
+
+            status.textContent =
+              `${currentQuestion.gradeLabel} • ` +
+              `${currentQuestion.course} • ` +
+              `Unit ${currentQuestion.unit}`;
+          } catch (error) {
+            currentQuestion = null;
+
+            questionArea.innerHTML = `
+              <div class="programmath-error">
+                ${escapeHTML(error.message)}
+              </div>
+            `;
+
+            status.textContent = "";
+          }
+        }
+
+        /* =========================================
+           RENDER QUESTION
+        ========================================= */
+
+        function renderQuestion() {
+          const q = currentQuestion;
+
+          questionArea.innerHTML = `
+            <article class="programmath-question">
+
+              <div class="programmath-tags">
+
+                <span class="programmath-tag">
+                  GRADE ${escapeHTML(q.gradeLabel)}
+                </span>
+
+                <span class="programmath-tag">
+                  UNIT ${escapeHTML(q.unit)}
+                </span>
+
+                <span class="programmath-tag">
+                  ${escapeHTML(q.unitTitle)}
+                </span>
+
+                <span class="programmath-tag">
+                  ${escapeHTML(q.difficulty.toUpperCase())}
+                </span>
+
+              </div>
+
+              <h2>
+                ${escapeHTML(q.prompt)}
+              </h2>
+
+              <div class="programmath-choices">
+
+                ${q.choices
+                  .map(
+                    (choice, index) => `
+                      <button
+                        type="button"
+                        class="programmath-choice"
+                        data-index="${index}"
+                      >
+                        ${escapeHTML(choice)}
+                      </button>
+                    `
+                  )
+                  .join("")}
+
+              </div>
+
+              <div
+                class="programmath-feedback"
+                id="feedback"
+              ></div>
+
+              <div
+                class="programmath-explanation"
+                id="explanation"
+              ></div>
+
+            </article>
+          `;
+
+          document.querySelectorAll(".programmath-choice").forEach((button) => {
+            button.addEventListener("click", () => {
+              answer(Number(button.dataset.index));
+            });
+          });
+        }
+
+        /* =========================================
+           ANSWER
+        ========================================= */
+
+        function answer(index) {
+          if (!currentQuestion) return;
+
+          const buttons = [...document.querySelectorAll(".programmath-choice")];
+
+          const selected = currentQuestion.choices[index];
+
+          const correct = selected === currentQuestion.answer;
+
+          const feedback = $("feedback");
+          const explanation = $("explanation");
+
+          buttons.forEach((button) => {
+            button.disabled = true;
+
+            const buttonIndex = Number(button.dataset.index);
+
+            if (
+              currentQuestion.choices[buttonIndex] === currentQuestion.answer
+            ) {
+              button.classList.add("correct");
+            }
+          });
+
+          if (correct) {
+            feedback.className = "programmath-feedback correct";
+
+            feedback.textContent = "Correct!";
+          } else {
+            const selectedButton = document.querySelector(
+              `.programmath-choice[data-index="${index}"]`
+            );
+
+            if (selectedButton) {
+              selectedButton.classList.add("wrong");
+            }
+
+            feedback.className = "programmath-feedback wrong";
+
+            feedback.textContent = `Incorrect. The answer is ${currentQuestion.answer}.`;
+          }
+
+          explanation.textContent = currentQuestion.explanation || "";
+        }
+
+        /* =========================================
+           EVENTS
+        ========================================= */
+
+        gradeButton.addEventListener("click", (event) => {
+          event.stopPropagation();
+
+          toggleMenu(gradeSelect, gradeButton);
+        });
+
+        unitButton.addEventListener("click", (event) => {
+          event.stopPropagation();
+
+          toggleMenu(unitSelect, unitButton);
+        });
+
+        document.addEventListener("click", closeMenus);
+
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape") {
+            closeMenus();
+          }
+        });
+
+        generateButton.addEventListener("click", generate);
+
+        /* =========================================
+           START
+        ========================================= */
+
+        if (!window.ProgramMath) {
+          status.innerHTML = `
+            <div class="programmath-error">
+              ProgramMath.js did not load.
+              Make sure ProgramMath.js is in the same folder
+              as this HTML file.
+            </div>
+          `;
+
+          generateButton.disabled = true;
+
+          return;
+        }
+
+        renderGrades();
+        renderUnits();
+        generate();
+      })();
+    </script>
+  </body>
+</html>

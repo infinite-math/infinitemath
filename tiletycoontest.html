@@ -1,0 +1,1581 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Infinite Math Tile Tycoon</title>
+
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
+      :root {
+        --black: #05060a;
+        --dark: #0a0c14;
+
+        --navy-dark: #0c1120;
+        --navy: #121a30;
+        --navy-light: #1a2440;
+
+        --text: #f2f3f7;
+        --muted: #9aa0b4;
+
+        --blue: #3b82f6;
+        --blue-soft: #6ea1f7;
+
+        --gray-btn: #1c1f27;
+        --red: #b92b40;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        min-height: 100%;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: var(--black);
+        color: var(--text);
+        overflow-x: hidden;
+      }
+
+      button,
+      input {
+        font-family: inherit;
+      }
+
+      .navbar {
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 30px;
+
+        background: var(--dark);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+        position: relative;
+        z-index: 300;
+      }
+
+      .navbar-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .logo {
+        color: var(--text);
+        text-decoration: none;
+        font-size: 21px;
+        font-weight: 800;
+      }
+
+      .logo span {
+        color: var(--blue-soft);
+      }
+
+      .navbar-right {
+        display: flex;
+        align-items: center;
+      }
+
+      .btn {
+        border: 1px solid var(--blue);
+        border-radius: 4px;
+
+        background: var(--gray-btn);
+        color: var(--text);
+
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+
+        padding: 13px 27px;
+
+        cursor: pointer;
+        transition: background 0.2s, border-color 0.2s, transform 0.1s;
+      }
+
+      .btn:hover {
+        background: #262a35;
+        border-color: var(--blue-soft);
+      }
+
+      .btn:active {
+        transform: translateY(1px);
+      }
+
+      .btn.primary {
+        background: var(--blue);
+        border-color: var(--blue);
+        color: white;
+      }
+
+      .btn.primary:hover {
+        background: #2563d9;
+      }
+
+      .btn.danger {
+        border-color: var(--red);
+        color: #ff7b8b;
+      }
+
+      .page {
+        display: none;
+      }
+
+      .page.active {
+        display: block;
+      }
+
+      .home-container {
+        max-width: 1100px;
+        margin: auto;
+        padding: 80px 25px;
+      }
+
+      .home-hero {
+        text-align: center;
+        margin-bottom: 65px;
+      }
+
+      .home-hero .label {
+        color: var(--blue-soft);
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        margin-bottom: 20px;
+      }
+
+      .home-hero h1 {
+        font-size: clamp(45px, 7vw, 82px);
+        line-height: 0.98;
+        letter-spacing: -4px;
+        font-weight: 800;
+      }
+
+      .home-hero h1 span {
+        color: var(--blue-soft);
+      }
+
+      .home-hero p {
+        max-width: 650px;
+        margin: 25px auto 0;
+
+        color: var(--muted);
+        font-size: 16px;
+        line-height: 1.8;
+      }
+
+      .home-buttons {
+        margin-top: 30px;
+
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .home-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 25px;
+      }
+
+      .home-card {
+        padding: 30px;
+
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 14px;
+      }
+
+      .home-card h2 {
+        font-size: 20px;
+        margin-bottom: 12px;
+      }
+
+      .home-card p {
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.7;
+      }
+
+      .instructions-container {
+        max-width: 800px;
+        margin: auto;
+        padding: 60px 25px;
+      }
+
+      .instructions-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 35px;
+      }
+
+      .instructions-card h1 {
+        margin-bottom: 25px;
+      }
+
+      .instructions-card ol {
+        padding-left: 25px;
+        color: var(--muted);
+        line-height: 1.9;
+      }
+
+      .instructions-card li {
+        margin-bottom: 8px;
+      }
+
+      .instructions-buttons {
+        margin-top: 30px;
+      }
+
+      .game-container {
+        width: 100%;
+        max-width: 1400px;
+        margin: auto;
+        padding: 25px;
+      }
+
+      .game-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+
+      .game-title h1 {
+        font-size: 28px;
+      }
+
+      .game-title p {
+        color: var(--muted);
+        font-size: 12px;
+        margin-top: 5px;
+      }
+
+      .game-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .hud {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(130px, 1fr));
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      .stat {
+        background: var(--navy);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: 9px;
+        padding: 14px;
+        min-width: 0;
+      }
+
+      .stat-label {
+        color: var(--muted);
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .stat-value {
+        color: white;
+        font-size: 20px;
+        font-weight: 800;
+        margin-top: 5px;
+
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .game-layout {
+        display: grid;
+        grid-template-columns:
+          minmax(650px, 760px)
+          minmax(250px, 1fr);
+
+        gap: 25px;
+        align-items: start;
+      }
+
+      .board-panel {
+        background: var(--navy-dark);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: 14px;
+        padding: 20px;
+        width: 100%;
+      }
+
+      .board {
+        width: 100%;
+        max-width: 720px;
+        margin: auto;
+
+        aspect-ratio: 1 / 1;
+
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        grid-template-rows: repeat(5, minmax(0, 1fr));
+
+        gap: 10px;
+        overflow: hidden;
+      }
+
+      .cell {
+        min-width: 0;
+        min-height: 0;
+
+        background: rgba(255, 255, 255, 0.025);
+        border: 1px dashed rgba(255, 255, 255, 0.06);
+        border-radius: 10px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        position: relative;
+        overflow: hidden;
+
+        cursor: pointer;
+
+        transition: border-color 0.12s, box-shadow 0.12s;
+      }
+
+      .cell:hover {
+        border-color: rgba(110, 161, 247, 0.35);
+      }
+
+      .cell.selected {
+        border: 3px solid rgba(110, 161, 247, 0.8);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+      }
+
+      .tile {
+        width: 94%;
+        height: 94%;
+
+        border-radius: 9px;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+
+        text-align: center;
+
+        color: #000 !important;
+        font-weight: 800;
+
+        padding: 5px;
+
+        overflow: hidden;
+        user-select: none;
+
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+
+        transition: transform 0.15s;
+      }
+
+      .tile:hover {
+        transform: scale(1.025);
+      }
+
+      .tile-name {
+        width: 100%;
+
+        font-size: clamp(9px, 1.35vw, 19px);
+
+        font-weight: 900;
+        line-height: 1.05;
+
+        white-space: normal;
+        overflow-wrap: anywhere;
+        word-break: normal;
+      }
+
+      .tile-level {
+        margin-top: 5px;
+
+        font-size: clamp(7px, 0.9vw, 12px);
+
+        font-weight: 900;
+        opacity: 0.75;
+      }
+
+      .level-1 {
+        background: #ff9f1c;
+      }
+
+      .level-2 {
+        background: #ffe600;
+      }
+
+      .level-3 {
+        background: #39ff14;
+      }
+
+      .level-4 {
+        background: #00e5ff;
+      }
+
+      .level-5 {
+        background: #00a8ff;
+      }
+
+      .level-6 {
+        background: #4169ff;
+        color: white !important;
+      }
+
+      .level-7 {
+        background: #8a2be2;
+        color: white !important;
+      }
+
+      .level-8 {
+        background: #ff29d9;
+      }
+
+      .level-9 {
+        background: #ff3b30;
+      }
+
+      .level-10 {
+        background: #ff6b00;
+      }
+
+      .level-11 {
+        background: #7cff00;
+      }
+
+      .level-12 {
+        background: #00ffd5;
+      }
+
+      .level-13 {
+        background: #00b7ff;
+      }
+
+      .level-14 {
+        background: #b45cff;
+      }
+
+      .level-15 {
+        background: #808080;
+      }
+
+      .level-16 {
+        background: #ff1744;
+      }
+
+      .level-17 {
+        background: #ffd600;
+      }
+
+      .level-18 {
+        background: #00e676;
+      }
+
+      .level-19 {
+        background: #2979ff;
+        color: white !important;
+      }
+
+      .level-20 {
+        background: #ffffff;
+      }
+
+      .side-info {
+        background: var(--navy-dark);
+
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: 14px;
+
+        padding: 25px;
+      }
+
+      .side-info h2 {
+        font-size: 20px;
+        margin-bottom: 15px;
+      }
+
+      .side-info p {
+        color: var(--muted);
+
+        font-size: 13px;
+        line-height: 1.7;
+
+        margin-bottom: 15px;
+      }
+
+      .side-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+
+        background: rgba(0, 0, 0, 0.78);
+
+        display: none;
+
+        align-items: center;
+        justify-content: center;
+
+        padding: 20px;
+
+        z-index: 1000;
+      }
+
+      .modal-overlay.show {
+        display: flex;
+      }
+
+      .modal {
+        width: 100%;
+        max-width: 500px;
+
+        background: #0d1220;
+
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+
+        padding: 30px;
+
+        box-shadow: 0 25px 80px rgba(0, 0, 0, 0.55);
+      }
+
+      .modal h2 {
+        margin-bottom: 10px;
+      }
+
+      .modal p {
+        color: var(--muted);
+
+        font-size: 13px;
+        line-height: 1.6;
+
+        margin-bottom: 20px;
+      }
+
+      .save-input {
+        width: 100%;
+
+        background: #05070d;
+
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 8px;
+
+        color: white;
+
+        padding: 13px;
+
+        font-size: 13px;
+
+        outline: none;
+      }
+
+      .save-input:focus {
+        border-color: var(--blue);
+      }
+
+      .modal-buttons {
+        display: flex;
+        gap: 8px;
+        margin-top: 15px;
+        flex-wrap: wrap;
+      }
+
+      .start-modal {
+        text-align: center;
+      }
+
+      .start-modal h2 {
+        font-size: 27px;
+      }
+
+      .start-modal .save-input {
+        margin-top: 10px;
+        text-align: center;
+      }
+
+      .life-screen {
+        position: fixed;
+        inset: 0;
+
+        background: #000;
+
+        z-index: 5000;
+
+        display: none;
+
+        align-items: center;
+        justify-content: center;
+
+        text-align: center;
+        padding: 20px;
+      }
+
+      .life-screen.show {
+        display: flex;
+      }
+
+      .life-screen h1 {
+        color: white;
+
+        font-size: clamp(35px, 8vw, 90px);
+
+        font-weight: 900;
+        letter-spacing: -4px;
+      }
+
+      .life-screen p {
+        color: #777;
+        margin-top: 15px;
+        font-size: 13px;
+      }
+
+      @media (max-width: 1000px) {
+        .game-layout {
+          grid-template-columns: 1fr;
+        }
+
+        .side-info {
+          width: 100%;
+        }
+
+        .board {
+          max-width: 700px;
+        }
+      }
+
+      @media (max-width: 850px) {
+        .home-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .hud {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .game-container {
+          padding: 15px;
+        }
+
+        .board-panel {
+          padding: 10px;
+        }
+
+        .board {
+          gap: 6px;
+        }
+      }
+
+      @media (max-width: 550px) {
+        .navbar {
+          padding: 0 15px;
+        }
+
+        .logo {
+          font-size: 17px;
+        }
+
+        .home-container {
+          padding: 50px 18px;
+        }
+
+        .home-hero h1 {
+          letter-spacing: -2px;
+        }
+
+        .hud {
+          grid-template-columns: 1fr 1fr;
+        }
+
+        .stat-value {
+          font-size: 16px;
+        }
+
+        .tile-name {
+          font-size: 9px;
+        }
+
+        .tile-level {
+          font-size: 7px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <nav class="navbar">
+      <div class="navbar-left">
+        <a href="home.html" class="logo">Infinite Math</a>
+      </div>
+
+      <div class="navbar-right">
+        <button class="btn" id="navHomeButton">Home</button>
+      </div>
+    </nav>
+
+    <section id="homePage" class="page active">
+      <div class="home-container">
+        <div class="home-hero">
+          <div class="label">INFINITE MATH</div>
+
+          <h1>
+            Infinite Math<br />
+            <span>Tile Tycoon</span>
+          </h1>
+
+          <p>
+            Build your empire one tile at a time. Merge buildings, generate
+            cash, and see how far you can push your city.
+          </p>
+
+          <div class="home-buttons">
+            <button class="btn primary" id="playButton">Play</button>
+
+            <button class="btn" id="instructionsButton">Instructions</button>
+          </div>
+        </div>
+
+        <div class="home-grid">
+          <div class="home-card">
+            <h2>Merge</h2>
+            <p>Combine two matching tiles to create the next level.</p>
+          </div>
+
+          <div class="home-card">
+            <h2>Earn</h2>
+            <p>Every tile produces passive cash every second.</p>
+          </div>
+
+          <div class="home-card">
+            <h2>Reach Level 20</h2>
+            <p>There are twenty levels. Level 20 is the final tile.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="instructionsPage" class="page">
+      <div class="instructions-container">
+        <div class="instructions-card">
+          <h1>How To Play</h1>
+
+          <ol>
+            <li>You begin with three Level 1 Houses.</li>
+            <li>Click a tile to select it.</li>
+            <li>Click another tile to perform an action.</li>
+            <li>Matching tiles merge into the next level.</li>
+            <li>Clicking an empty space moves the tile there.</li>
+            <li>Different tiles swap places.</li>
+            <li>Buy additional Level 1 tiles using cash.</li>
+            <li>Higher-level tiles produce more cash.</li>
+            <li>Level 15 is Graycen's Level.</li>
+            <li>There are 20 levels total.</li>
+            <li>
+              If you somehow merge two Level 20 tiles, the game will ask you an
+              important question.
+            </li>
+          </ol>
+
+          <div class="instructions-buttons">
+            <button class="btn" id="backInstructionsButton">Back</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="gamePage" class="page">
+      <div class="game-container">
+        <div class="game-header">
+          <div class="game-title">
+            <h1>Infinite Math Tile Tycoon</h1>
+
+            <p>Merge. Upgrade. Get rich.</p>
+          </div>
+
+          <div class="game-actions">
+            <button class="btn" id="saveGameButton">Generate Save Code</button>
+
+            <button class="btn" id="homeGameButton">Home</button>
+          </div>
+        </div>
+
+        <div class="hud">
+          <div class="stat">
+            <div class="stat-label">Cash</div>
+            <div class="stat-value" id="cashDisplay">$0</div>
+          </div>
+
+          <div class="stat">
+            <div class="stat-label">Cash / Second</div>
+            <div class="stat-value" id="incomeDisplay">$0</div>
+          </div>
+
+          <div class="stat">
+            <div class="stat-label">Tiles</div>
+            <div class="stat-value" id="tileDisplay">3 / 25</div>
+          </div>
+
+          <div class="stat">
+            <div class="stat-label">Highest Level</div>
+            <div class="stat-value" id="highestDisplay">Level 1</div>
+          </div>
+        </div>
+
+        <div class="game-layout">
+          <div class="board-panel">
+            <div id="board" class="board"></div>
+          </div>
+
+          <div class="side-info">
+            <h2>Tycoon Controls</h2>
+
+            <p>
+              Buy a new Level 1 House for
+              <strong>$10</strong>.
+            </p>
+
+            <div class="side-buttons">
+              <button class="btn primary" id="buyTileButton">
+                Buy Tile ($10)
+              </button>
+
+              <button class="btn" id="pauseButton">Pause</button>
+
+              <button class="btn" id="saveSideButton">
+                Generate Save Code
+              </button>
+            </div>
+
+            <p style="margin-top: 25px">
+              <strong>Level 15:</strong><br />
+              Graycen's Level
+            </p>
+
+            <p>
+              <strong>Level 20:</strong><br />
+              The final level.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div id="startModal" class="modal-overlay">
+      <div class="modal start-modal">
+        <h2>Continue Your Game?</h2>
+
+        <p>
+          Enter a save code to restore your previous cash, tiles, and progress.
+          Or skip to start a fresh game.
+        </p>
+
+        <input
+          id="startSaveInput"
+          class="save-input"
+          type="text"
+          placeholder="Enter save code"
+        />
+
+        <div class="modal-buttons">
+          <button class="btn primary" id="loadStartSaveButton">
+            Load Save
+          </button>
+
+          <button class="btn" id="skipSaveButton">Skip</button>
+        </div>
+
+        <p
+          id="startSaveError"
+          style="color: #ff6262; display: none; margin-top: 12px"
+        >
+          Invalid save code.
+        </p>
+      </div>
+    </div>
+
+    <div id="saveModal" class="modal-overlay">
+      <div class="modal">
+        <h2>Your Save Code</h2>
+
+        <p>
+          Copy this entire code. You can paste it back into the game later to
+          restore your progress.
+        </p>
+
+        <input id="saveCodeOutput" class="save-input" type="text" readonly />
+
+        <div class="modal-buttons">
+          <button class="btn primary" id="copySaveButton">Copy Code</button>
+
+          <button class="btn" id="closeSaveButton">Close</button>
+        </div>
+
+        <p id="copyMessage" style="display: none; color: #7cffaa">
+          Save code copied!
+        </p>
+      </div>
+    </div>
+
+    <div id="homeConfirmModal" class="modal-overlay">
+      <div class="modal">
+        <h2>Leave Game?</h2>
+
+        <p>
+          Are you sure you want to go home?
+          <strong>Your current progress will be lost.</strong>
+        </p>
+
+        <div class="modal-buttons">
+          <button class="btn danger" id="confirmHomeButton">
+            Yes, Go Home
+          </button>
+
+          <button class="btn" id="cancelHomeButton">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="lifeScreen" class="life-screen">
+      <div>
+        <h1>DO YOU HAVE A LIFE?</h1>
+
+        <p>You merged two Level 20 tiles.</p>
+
+        <button class="btn" id="lifeBackButton" style="margin-top: 25px">
+          Continue
+        </button>
+      </div>
+    </div>
+
+    <script>
+      (() => {
+        "use strict";
+
+        const ROWS = 5;
+        const COLS = 5;
+        const BOARD_SIZE = ROWS * COLS;
+
+        const STARTING_TILES = 3;
+        const BUY_COST = 10;
+        const TICK_TIME = 1000;
+
+        const levelNames = [
+          "Empty",
+          "House",
+          "Shop",
+          "Mall",
+          "Skyscraper",
+          "Factory",
+          "Space Port",
+          "City",
+          "Metro",
+          "Mega City",
+          "Capital",
+          "Kingdom",
+          "Empire",
+          "Mega Empire",
+          "World",
+          "Graycen's Level",
+          "Solar System",
+          "Galaxy",
+          "Universe",
+          "Multiverse",
+          "INFINITE",
+        ];
+
+        const income = [
+          0, 1, 3, 8, 20, 50, 120, 300, 750, 1800, 4000, 9000, 20000, 45000,
+          100000, 250000, 600000, 1500000, 4000000, 10000000, 25000000,
+        ];
+
+        let board = new Array(BOARD_SIZE).fill(null);
+        let cash = 0;
+        let paused = false;
+        let selectedIndex = -1;
+        let gameStarted = false;
+
+        const boardElement = document.getElementById("board");
+        const cashDisplay = document.getElementById("cashDisplay");
+        const incomeDisplay = document.getElementById("incomeDisplay");
+        const tileDisplay = document.getElementById("tileDisplay");
+        const highestDisplay = document.getElementById("highestDisplay");
+
+        const playButton = document.getElementById("playButton");
+        const instructionsButton =
+          document.getElementById("instructionsButton");
+
+        const backInstructionsButton = document.getElementById(
+          "backInstructionsButton"
+        );
+
+        const buyTileButton = document.getElementById("buyTileButton");
+
+        const pauseButton = document.getElementById("pauseButton");
+
+        const saveGameButton = document.getElementById("saveGameButton");
+
+        const saveSideButton = document.getElementById("saveSideButton");
+
+        const homeGameButton = document.getElementById("homeGameButton");
+
+        const navHomeButton = document.getElementById("navHomeButton");
+
+        const homePage = document.getElementById("homePage");
+        const instructionsPage = document.getElementById("instructionsPage");
+
+        const gamePage = document.getElementById("gamePage");
+
+        const startModal = document.getElementById("startModal");
+
+        const saveModal = document.getElementById("saveModal");
+
+        const homeConfirmModal = document.getElementById("homeConfirmModal");
+
+        const lifeScreen = document.getElementById("lifeScreen");
+
+        const startSaveInput = document.getElementById("startSaveInput");
+
+        const startSaveError = document.getElementById("startSaveError");
+
+        const loadStartSaveButton = document.getElementById(
+          "loadStartSaveButton"
+        );
+
+        const skipSaveButton = document.getElementById("skipSaveButton");
+
+        const saveCodeOutput = document.getElementById("saveCodeOutput");
+
+        const copySaveButton = document.getElementById("copySaveButton");
+
+        const closeSaveButton = document.getElementById("closeSaveButton");
+
+        const confirmHomeButton = document.getElementById("confirmHomeButton");
+
+        const cancelHomeButton = document.getElementById("cancelHomeButton");
+
+        const lifeBackButton = document.getElementById("lifeBackButton");
+
+        const copyMessage = document.getElementById("copyMessage");
+
+        function showPage(page) {
+          homePage.classList.remove("active");
+          instructionsPage.classList.remove("active");
+          gamePage.classList.remove("active");
+
+          page.classList.add("active");
+        }
+
+        function showHome() {
+          showPage(homePage);
+          gameStarted = false;
+        }
+
+        function showInstructions() {
+          showPage(instructionsPage);
+        }
+
+        function showGame() {
+          showPage(gamePage);
+          gameStarted = true;
+          render();
+        }
+
+        playButton.addEventListener("click", () => {
+          startSaveInput.value = "";
+          startSaveError.style.display = "none";
+
+          startModal.classList.add("show");
+        });
+
+        skipSaveButton.addEventListener("click", () => {
+          startModal.classList.remove("show");
+
+          startNewGame();
+
+          showGame();
+        });
+
+        loadStartSaveButton.addEventListener("click", () => {
+          const code = startSaveInput.value.trim();
+
+          if (!code) {
+            startSaveError.style.display = "block";
+            return;
+          }
+
+          const success = loadSaveCode(code);
+
+          if (!success) {
+            startSaveError.style.display = "block";
+            return;
+          }
+
+          startSaveError.style.display = "none";
+
+          startModal.classList.remove("show");
+
+          showGame();
+        });
+
+        instructionsButton.addEventListener("click", showInstructions);
+
+        backInstructionsButton.addEventListener("click", showHome);
+
+        homeGameButton.addEventListener("click", () => {
+          homeConfirmModal.classList.add("show");
+        });
+
+        confirmHomeButton.addEventListener("click", () => {
+          homeConfirmModal.classList.remove("show");
+
+          gameStarted = false;
+
+          window.location.href = "home.html";
+        });
+
+        cancelHomeButton.addEventListener("click", () => {
+          homeConfirmModal.classList.remove("show");
+        });
+
+        navHomeButton.addEventListener("click", () => {
+          if (gameStarted) {
+            homeConfirmModal.classList.add("show");
+          } else {
+            window.location.href = "home.html";
+          }
+        });
+
+        function startNewGame() {
+          board = new Array(BOARD_SIZE).fill(null);
+
+          cash = 0;
+          paused = false;
+          selectedIndex = -1;
+
+          for (let i = 0; i < STARTING_TILES; i++) {
+            addRandomTile(1);
+          }
+
+          pauseButton.textContent = "Pause";
+
+          render();
+        }
+
+        function createBoard() {
+          boardElement.innerHTML = "";
+
+          for (let i = 0; i < BOARD_SIZE; i++) {
+            const cell = document.createElement("div");
+
+            cell.className = "cell";
+            cell.dataset.index = i;
+
+            cell.addEventListener("click", () => handleCellClick(i));
+
+            boardElement.appendChild(cell);
+          }
+        }
+
+        function addRandomTile(level = 1) {
+          const emptyCells = [];
+
+          for (let i = 0; i < BOARD_SIZE; i++) {
+            if (!board[i]) {
+              emptyCells.push(i);
+            }
+          }
+
+          if (emptyCells.length === 0) {
+            return false;
+          }
+
+          const randomIndex =
+            emptyCells[Math.floor(Math.random() * emptyCells.length)];
+
+          board[randomIndex] = {
+            level: level,
+          };
+
+          return true;
+        }
+
+        function handleCellClick(index) {
+          if (paused) {
+            return;
+          }
+
+          const tile = board[index];
+
+          if (selectedIndex === -1) {
+            if (!tile) {
+              return;
+            }
+
+            selectedIndex = index;
+
+            render();
+
+            return;
+          }
+
+          if (selectedIndex === index) {
+            selectedIndex = -1;
+
+            render();
+
+            return;
+          }
+
+          processMove(selectedIndex, index);
+
+          selectedIndex = -1;
+
+          render();
+        }
+
+        function processMove(sourceIndex, targetIndex) {
+          const source = board[sourceIndex];
+          const target = board[targetIndex];
+
+          if (!source) {
+            return;
+          }
+
+          if (!target) {
+            board[targetIndex] = source;
+            board[sourceIndex] = null;
+
+            return;
+          }
+
+          if (source.level === target.level) {
+            if (source.level === 20) {
+              showLifeScreen();
+              return;
+            }
+
+            const newLevel = source.level + 1;
+
+            board[targetIndex] = {
+              level: newLevel,
+            };
+
+            board[sourceIndex] = null;
+
+            cash += newLevel * 2;
+
+            return;
+          }
+
+          board[sourceIndex] = target;
+          board[targetIndex] = source;
+        }
+
+        function showLifeScreen() {
+          lifeScreen.classList.add("show");
+        }
+
+        lifeBackButton.addEventListener("click", () => {
+          lifeScreen.classList.remove("show");
+        });
+
+        buyTileButton.addEventListener("click", () => {
+          if (paused) {
+            return;
+          }
+
+          if (cash < BUY_COST) {
+            return;
+          }
+
+          const success = addRandomTile(1);
+
+          if (!success) {
+            alert("The board is full!");
+            return;
+          }
+
+          cash -= BUY_COST;
+
+          render();
+        });
+
+        pauseButton.addEventListener("click", () => {
+          paused = !paused;
+
+          pauseButton.textContent = paused ? "Resume" : "Pause";
+        });
+
+        function getIncomePerSecond() {
+          let total = 0;
+
+          for (const tile of board) {
+            if (!tile) {
+              continue;
+            }
+
+            total += income[tile.level] || 0;
+          }
+
+          return total;
+        }
+
+        function render() {
+          for (let i = 0; i < BOARD_SIZE; i++) {
+            const cell = boardElement.children[i];
+
+            if (!cell) {
+              continue;
+            }
+
+            cell.classList.toggle("selected", selectedIndex === i);
+
+            const tile = board[i];
+
+            cell.innerHTML = "";
+
+            if (!tile) {
+              continue;
+            }
+
+            const tileElement = document.createElement("div");
+
+            tileElement.className = "tile level-" + tile.level;
+
+            const name = getTileName(tile.level);
+
+            const nameElement = document.createElement("div");
+
+            nameElement.className = "tile-name";
+
+            nameElement.textContent = name;
+
+            const levelElement = document.createElement("div");
+
+            levelElement.className = "tile-level";
+
+            levelElement.textContent = "LEVEL " + tile.level;
+
+            tileElement.appendChild(nameElement);
+            tileElement.appendChild(levelElement);
+
+            cell.appendChild(tileElement);
+          }
+
+          updateHUD();
+        }
+
+        function getTileName(level) {
+          return levelNames[level] || "Level " + level;
+        }
+
+        function updateHUD() {
+          cashDisplay.textContent = "$" + Math.floor(cash).toLocaleString();
+
+          incomeDisplay.textContent =
+            "$" + Math.floor(getIncomePerSecond()).toLocaleString();
+
+          const tileCount = board.filter(Boolean).length;
+
+          tileDisplay.textContent = tileCount + " / " + BOARD_SIZE;
+
+          let highest = 0;
+
+          for (const tile of board) {
+            if (tile && tile.level > highest) {
+              highest = tile.level;
+            }
+          }
+
+          highestDisplay.textContent =
+            highest > 0 ? "Level " + highest : "Level 1";
+        }
+
+        function generateSaveCode() {
+          const saveData = {
+            version: 2,
+            cash: cash,
+            board: board,
+            paused: false,
+          };
+
+          const json = JSON.stringify(saveData);
+
+          const bytes = new TextEncoder().encode(json);
+
+          let binary = "";
+
+          for (const byte of bytes) {
+            binary += String.fromCharCode(byte);
+          }
+
+          const base64 = btoa(binary);
+
+          return "IMTT2-" + base64;
+        }
+
+        function loadSaveCode(code) {
+          try {
+            if (!code.startsWith("IMTT2-")) {
+              return false;
+            }
+
+            const base64 = code.substring(6);
+
+            const binary = atob(base64);
+
+            const bytes = new Uint8Array(binary.length);
+
+            for (let i = 0; i < binary.length; i++) {
+              bytes[i] = binary.charCodeAt(i);
+            }
+
+            const json = new TextDecoder().decode(bytes);
+
+            const data = JSON.parse(json);
+
+            if (!data || !Array.isArray(data.board)) {
+              return false;
+            }
+
+            if (data.board.length !== BOARD_SIZE) {
+              return false;
+            }
+
+            for (const tile of data.board) {
+              if (tile === null) {
+                continue;
+              }
+
+              if (
+                typeof tile !== "object" ||
+                typeof tile.level !== "number" ||
+                tile.level < 1 ||
+                tile.level > 20
+              ) {
+                return false;
+              }
+            }
+
+            board = data.board.map((tile) => {
+              if (!tile) {
+                return null;
+              }
+
+              return {
+                level: Math.floor(tile.level),
+              };
+            });
+
+            cash = Number(data.cash) || 0;
+
+            if (cash < 0) {
+              cash = 0;
+            }
+
+            paused = false;
+            selectedIndex = -1;
+
+            render();
+
+            return true;
+          } catch (error) {
+            console.error("Save code error:", error);
+
+            return false;
+          }
+        }
+
+        function openSaveModal() {
+          const code = generateSaveCode();
+
+          saveCodeOutput.value = code;
+
+          copySaveButton.textContent = "Copy Code";
+
+          copyMessage.style.display = "none";
+
+          saveModal.classList.add("show");
+        }
+
+        saveGameButton.addEventListener("click", openSaveModal);
+
+        saveSideButton.addEventListener("click", openSaveModal);
+
+        closeSaveButton.addEventListener("click", () => {
+          saveModal.classList.remove("show");
+        });
+
+        copySaveButton.addEventListener("click", async () => {
+          const code = saveCodeOutput.value;
+
+          try {
+            await navigator.clipboard.writeText(code);
+
+            copySaveButton.textContent = "Copied!";
+
+            copyMessage.style.display = "block";
+          } catch {
+            saveCodeOutput.select();
+
+            document.execCommand("copy");
+
+            copySaveButton.textContent = "Copied!";
+          }
+        });
+
+        setInterval(() => {
+          if (!gameStarted) {
+            return;
+          }
+
+          if (paused) {
+            return;
+          }
+
+          cash += getIncomePerSecond();
+
+          updateHUD();
+        }, TICK_TIME);
+
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape") {
+            selectedIndex = -1;
+
+            render();
+          }
+        });
+
+        createBoard();
+
+        showHome();
+      })();
+    </script>
+  </body>
+</html>

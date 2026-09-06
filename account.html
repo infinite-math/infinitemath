@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Account Settings - Infinite Math</title>
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+      <a href="home.html" class="logo">Infinite Math</a>
+
+      <div class="account-menu">
+        <button id="accountButton" class="account-button">
+          <img
+            id="navProfilePicture"
+            src="https://via.placeholder.com/40"
+            alt="Profile"
+          />
+          <span id="navUsername">Account</span>
+          <span class="dropdown-arrow">▾</span>
+        </button>
+
+        <div id="accountDropdown" class="account-dropdown">
+          <div class="dropdown-profile">
+            <img
+              id="dropdownProfilePicture"
+              src="https://via.placeholder.com/50"
+              alt="Profile"
+            />
+
+            <div>
+              <strong id="dropdownName">Loading...</strong>
+              <span id="dropdownEmail">Loading...</span>
+            </div>
+          </div>
+
+          <div class="dropdown-divider"></div>
+
+          <a href="account.html" class="dropdown-item"> Account Settings </a>
+
+          <a href="home.html" class="dropdown-item"> Home </a>
+
+          <button id="signOutButton" class="dropdown-item">Sign Out</button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ACCOUNT PAGE -->
+    <main class="account-container">
+      <a href="home.html" class="back-button"> ← Back to Home </a>
+
+      <div class="settings-card">
+        <h1>Account Settings</h1>
+
+        <p class="settings-subtitle">Manage your Infinite Math account.</p>
+
+        <!-- PROFILE PICTURE -->
+        <div class="profile-section">
+          <img
+            id="profilePicture"
+            class="large-profile-picture"
+            src="https://via.placeholder.com/120"
+            alt="Profile Picture"
+          />
+
+          <label for="profilePictureInput" class="change-picture-button">
+            Change Picture
+          </label>
+
+          <input
+            type="file"
+            id="profilePictureInput"
+            accept="image/*"
+            style="display: none"
+          />
+        </div>
+
+        <!-- DISPLAY NAME -->
+        <div class="setting-section">
+          <label for="displayNameInput"> Display Name </label>
+
+          <div class="setting-input-row">
+            <input
+              type="text"
+              id="displayNameInput"
+              placeholder="Enter your display name"
+            />
+
+            <button id="saveNameButton" type="button">Save</button>
+          </div>
+        </div>
+
+        <!-- MATH GRADE LEVEL -->
+        <div class="setting-section">
+          <label> Math Grade Level </label>
+
+          <div id="mathLevelDisplay" class="account-readonly-value">
+            Loading...
+          </div>
+
+          <small>
+            Your grade level is determined by the Math Diagnostic.
+          </small>
+        </div>
+
+        <!-- EMAIL -->
+        <div class="setting-section">
+          <label for="emailInput"> Email </label>
+
+          <input type="email" id="emailInput" readonly />
+        </div>
+
+        <!-- ACCOUNT INFO -->
+        <div class="account-info">
+          <h2>Account Information</h2>
+
+          <div class="info-row">
+            <span>Sign-in method</span>
+            <strong id="providerInfo">Loading...</strong>
+          </div>
+
+          <div class="info-row">
+            <span>User ID</span>
+            <strong id="uidInfo">Loading...</strong>
+          </div>
+        </div>
+
+        <!-- STATUS -->
+        <div id="statusMessage" class="status-message"></div>
+
+        <!-- SIGN OUT -->
+        <button id="signOutButton" class="danger-button" type="button">
+          Sign Out
+        </button>
+      </div>
+    </main>
+
+    <script type="module" src="account.js"></script>
+  </body>
+</html>

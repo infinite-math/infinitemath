@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Home - Infinite Math</title>
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <nav class="navbar">
+      <div class="navbar-left">
+        <button
+          id="sidebarToggle"
+          class="hamburger-button"
+          aria-label="Toggle menu"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <a href="home.html" class="logo">Infinite Math</a>
+      </div>
+
+      <div class="navbar-right">
+        <div class="account-menu">
+          <button id="accountButton" class="account-button">
+            <img
+              id="navProfilePicture"
+              class="nav-profile-picture"
+              src=""
+              alt="Profile"
+            />
+
+            <span id="navUsername">Account</span>
+
+            <span class="dropdown-arrow">▾</span>
+          </button>
+
+          <div id="accountDropdown" class="dropdown">
+            <div class="dropdown-user">
+              <img
+                id="dropdownProfilePicture"
+                class="dropdown-profile-picture"
+                src=""
+                alt="Profile"
+              />
+
+              <div>
+                <strong id="dropdownName">Loading...</strong>
+                <small id="dropdownEmail">Loading...</small>
+              </div>
+            </div>
+
+            <div class="dropdown-divider"></div>
+
+            <a href="account.html" class="dropdown-item"> Account Settings </a>
+
+            <div class="dropdown-divider"></div>
+
+            <button id="signOutButton" class="dropdown-item sign-out">
+              Sign Out
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <aside id="sidePanel" class="side-panel">
+      <div class="sidebar-section">
+        <div class="sidebar-group-buttons">
+          <a href="groups.html" class="sidebar-group-button"> Groups </a>
+
+          <button
+            id="groupsArrow"
+            class="sidebar-group-arrow"
+            aria-label="Toggle groups submenu"
+          >
+            ▾
+          </button>
+        </div>
+
+        <div id="groupsSubmenu" class="sidebar-submenu">
+          <a href="create-join-groups.html" class="sidebar-create-button">
+            Create / Join Group
+          </a>
+        </div>
+      </div>
+    </aside>
+
+    <main class="home-container">
+      <section class="hero">
+        <h1 id="welcomeMessage">Welcome to Infinite Math!</h1>
+
+        <p>Learn, practice, and improve your math skills.</p>
+      </section>
+
+      
+      </section>
+
+      <section class="leaderboard-section">
+        <div class="leaderboard-header">
+          <div>
+            <h2>Global Leaderboard</h2>
+
+            <p>See how everyone on Infinite Math is doing.</p>
+          </div>
+        </div>
+
+        <div class="leaderboard-controls">
+          <div class="leaderboard-control">
+            <label for="globalGradeFilter"> Grade </label>
+
+            <select id="globalGradeFilter">
+              <option value="all">All Grades</option>
+              <option value="K">Kindergarten</option>
+
+              <option value="1">Grade 1</option>
+              <option value="2">Grade 2</option>
+              <option value="3">Grade 3</option>
+              <option value="4">Grade 4</option>
+              <option value="5">Grade 5</option>
+              <option value="6">Grade 6</option>
+              <option value="7">Grade 7</option>
+              <option value="8">Grade 8</option>
+              <option value="9">Grade 9</option>
+              <option value="10">Grade 10</option>
+              <option value="11">Grade 11</option>
+              <option value="12">Grade 12</option>
+            </select>
+          </div>
+
+          <div class="leaderboard-control">
+            <label for="globalSort"> Sort By </label>
+
+            <select id="globalSort">
+              <option value="xp">XP</option>
+              <option value="lessons">Lessons Completed</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="leaderboard-table-wrapper">
+          <table class="leaderboard-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Player</th>
+                <th>Grade</th>
+                <th>Unit</th>
+                <th>XP</th>
+                <th>Lessons</th>
+              </tr>
+            </thead>
+
+            <tbody id="globalLeaderboardBody">
+              <tr>
+                <td colspan="6" class="leaderboard-loading">
+                  Loading leaderboard...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="home.js"></script>
+  </body>
+</html>

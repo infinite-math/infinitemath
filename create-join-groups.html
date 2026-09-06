@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Create / Join Group - Infinite Math</title>
+
+    <link rel="stylesheet" href="style.css" />
+
+    <style>
+      .groups-page-container {
+        width: min(1100px, 92%);
+        margin: 0 auto;
+        padding: 50px 0;
+      }
+
+      .groups-page-title {
+        text-align: center;
+        margin-bottom: 10px;
+      }
+
+      .groups-page-subtitle {
+        text-align: center;
+        margin-bottom: 40px;
+        opacity: 0.75;
+      }
+
+      .group-action-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 25px;
+      }
+
+      .group-action-card {
+        padding: 30px;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .group-action-card h2 {
+        margin-top: 0;
+      }
+
+      .group-input {
+        width: 100%;
+        padding: 13px;
+        margin: 12px 0;
+        border-radius: 9px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: rgba(0, 0, 0, 0.3);
+        color: white;
+        font-size: 16px;
+      }
+
+      .group-action-button {
+        width: 100%;
+        padding: 13px;
+        border: 0;
+        border-radius: 9px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 16px;
+      }
+
+      .group-message {
+        margin-top: 15px;
+        min-height: 24px;
+      }
+
+      .group-code-result {
+        margin-top: 20px;
+        padding: 20px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.06);
+        text-align: center;
+        display: none;
+      }
+
+      .group-code {
+        display: block;
+        font-size: 30px;
+        font-weight: bold;
+        letter-spacing: 5px;
+        margin: 10px 0;
+      }
+
+      .groups-link {
+        display: block;
+        width: fit-content;
+        margin: 35px auto 0;
+      }
+
+      @media (max-width: 600px) {
+        .groups-page-container {
+          padding: 30px 0;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <nav class="navbar">
+      <div class="navbar-left">
+        <button
+          id="sidebarToggle"
+          class="hamburger-button"
+          aria-label="Toggle menu"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <a href="home.html" class="logo"> Infinite Math </a>
+      </div>
+
+      <div class="navbar-right">
+        <div class="account-menu">
+          <button id="accountButton" class="account-button">
+            <img
+              id="navProfilePicture"
+              class="nav-profile-picture"
+              src=""
+              alt="Profile"
+            />
+
+            <span id="navUsername"> Account </span>
+
+            <span class="dropdown-arrow"> ▾ </span>
+          </button>
+
+          <div id="accountDropdown" class="dropdown">
+            <div class="dropdown-user">
+              <img
+                id="dropdownProfilePicture"
+                class="dropdown-profile-picture"
+                src=""
+                alt="Profile"
+              />
+
+              <div>
+                <strong id="dropdownName"> Loading... </strong>
+
+                <small id="dropdownEmail"> Loading... </small>
+              </div>
+            </div>
+
+            <div class="dropdown-divider"></div>
+
+            <a href="account.html" class="dropdown-item"> Account Settings </a>
+
+            <div class="dropdown-divider"></div>
+
+            <button id="signOutButton" class="dropdown-item sign-out">
+              Sign Out
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <aside id="sidePanel" class="side-panel">
+      <div class="sidebar-section">
+        <div class="sidebar-group-buttons">
+          <a href="groups.html" class="sidebar-group-button"> Groups </a>
+
+          <button id="groupsArrow" class="sidebar-group-arrow">▾</button>
+        </div>
+
+        <div id="groupsSubmenu" class="sidebar-submenu">
+          <a href="create-join-groups.html" class="sidebar-create-button">
+            Create / Join Group
+          </a>
+        </div>
+      </div>
+    </aside>
+
+    <main class="groups-page-container">
+      <h1 class="groups-page-title">Create / Join a Group</h1>
+
+      <p class="groups-page-subtitle">
+        Create a group for your class or join one using a group code.
+      </p>
+
+      <div class="group-action-grid">
+        <section class="group-action-card">
+          <h2>Create a Group</h2>
+
+          <p>Create a group and get a 6-character join code.</p>
+
+          <input
+            id="groupNameInput"
+            class="group-input"
+            type="text"
+            maxlength="40"
+            placeholder="Group name"
+          />
+
+          <button id="createGroupButton" class="group-action-button">
+            Create Group
+          </button>
+
+          <div id="createMessage" class="group-message"></div>
+
+          <div id="groupCodeResult" class="group-code-result">
+            <div>Your group code is:</div>
+
+            <span id="generatedGroupCode" class="group-code"></span>
+
+            <a id="newGroupLink" href="#"> Open Group </a>
+          </div>
+        </section>
+
+        <section class="group-action-card">
+          <h2>Join a Group</h2>
+
+          <p>Enter the 6-character code given to you by the group owner.</p>
+
+          <input
+            id="joinCodeInput"
+            class="group-input"
+            type="text"
+            maxlength="6"
+            placeholder="ABC123"
+            autocomplete="off"
+          />
+
+          <button id="joinGroupButton" class="group-action-button">
+            Join Group
+          </button>
+
+          <div id="joinMessage" class="group-message"></div>
+        </section>
+      </div>
+
+      <a href="groups.html" class="groups-link"> View My Groups → </a>
+    </main>
+
+    <script type="module" src="create-join-groups.js"></script>
+  </body>
+</html>
